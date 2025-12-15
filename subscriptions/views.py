@@ -28,7 +28,26 @@ class InitiatePaymentView(LoginRequiredMixin, View):
         # Old: SUB-{shop.id}-{uuid} (invalid due to hyphens)
         # New: SUB{shop.id}{uuid} 
         reference = f"SUB{shop.id}X{uuid.uuid4().hex[:10].upper()}"
-        amount = plan.price_monthly # Default to monthly for now
+        cycle = data.get('cycle', 'monthly') # Default to monthly if missing
+        
+        # Determine Amount based on Cycle
+        if cycle == 'daily':
+            amount = plan.price_daily
+        elif cycle == 'weekly':
+            amount = plan.price_weekly
+        elif cycle == 'monthly':
+            amount = plan.price_monthly
+        elif cycle == 'quarterly':
+            amount = plan.price_quarterly
+        elif cycle == 'biannually':
+            amount = plan.price_biannually
+        elif cycle == 'yearly':
+            amount = plan.price_yearly
+        else:
+            amount = plan.price_monthly # Fallback
+            
+        if amount <= 0:
+             return JsonResponse({'success': False, 'message': 'Invalid plan cycle selected'})
         
         # Create Pending Payment Record
         # We need a subscription object to link to. 
@@ -36,8 +55,18 @@ class InitiatePaymentView(LoginRequiredMixin, View):
         # The model requires a subscription FK.
         subscription, created = ShopSubscription.objects.get_or_create(
              shop=shop,
-             defaults={'plan': plan, 'end_date': request.user.date_joined, 'status': 'EXPIRED'} # Dummy defaults
+             defaults={
+                 'plan': plan, 
+                 'end_date': request.user.date_joined, 
+                 'status': 'EXPIRED',
+                 'billing_cycle': cycle.upper()
+             } 
         )
+        # Update cycle if subscription existed
+        if not created:
+            subscription.billing_cycle = cycle.upper()
+            subscription.plan = plan # Also update plan in case they switched
+            subscription.save()
         
         payment = SubscriptionPayment.objects.create(
             subscription=subscription,
@@ -91,7 +120,26 @@ class CheckPaymentStatusView(LoginRequiredMixin, View):
             sub.status = 'ACTIVE'
             from django.utils import timezone
             from datetime import timedelta
-            sub.end_date = timezone.now() + timedelta(days=30) # Monthly logic
+            
+            # Reset end_date if expired, or extend if active
+            now = timezone.now()
+            start_date = now if sub.end_date < now else sub.end_date
+            
+            cycle = sub.billing_cycle.upper()
+            if cycle == 'DAILY':
+                days = 1
+            elif cycle == 'WEEKLY':
+                days = 7
+            elif cycle == 'QUARTERLY':
+                days = 90
+            elif cycle == 'BIANNUALLY':
+                days = 180
+            elif cycle == 'YEARLY':
+                days = 365
+            else:
+                days = 30 # Default Monthly
+                
+            sub.end_date = start_date + timedelta(days=days)
             sub.save()
             
             return JsonResponse({'status': 'COMPLETED'})
