@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">ABC Analysis (Pareto Principle)</h1>
+
+    <div class="alert alert-info">
+        <strong>Description:</strong>
+        <ul>
+            <li><strong>Class A (High Value)</strong>: Top 70% of inventory value (Vital few).</li>
+            <li><strong>Class B (Medium Value)</strong>: Next 20% of value.</li>
+            <li><strong>Class C (Low Value)</strong>: Bottom 10% of value (Trivial many).</li>
+        </ul>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Grade</th>
+                            <th>Product</th>
+                            <th>Total Qty</th>
+                            <th>Unit Cost</th>
+                            <th>Total Value</th>
+                            <th>% Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in abc_items %}
+                        <tr class="
+                            {% if item.abc_grade == 'A' %}table-success
+                            {% elif item.abc_grade == 'B' %}table-warning
+                            {% else %}table-light{% endif %}">
+                            <td class="fw-bold">{{ item.abc_grade }}</td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.total_qty }}</td>
+                            <td>{{ item.cost_price|intcomma }}</td>
+                            <td class="fw-bold">{{ item.total_value|intcomma }}</td>
+                            <td>{{ item.share_percent|floatformat:2 }}%</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No inventory data to analyze.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="d-flex align-items-center mb-4">
+                <i class="bi bi-gear-fill fs-3 text-warning me-3"></i>
+                <div>
+                    <h1 class="h3 fw-bold text-gray-900 mb-1">Global System Settings</h1>
+                    <p class="text-muted mb-0">Configure system-wide parameters for your SaaS.</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-5">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-5">
+                            <h5 class="fw-bold text-dark border-bottom pb-2 mb-4">General Configuration</h5>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-gray-700">Platform Name</label>
+                                    {{ form.site_name }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-gray-700">Currency</label>
+                                    {{ form.default_currency }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-gray-700">Trial Days</label>
+                                    {{ form.trial_days }}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-gray-700">Support Email</label>
+                                {{ form.support_email }}
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <h5 class="fw-bold text-dark border-bottom pb-2 mb-4">System Access</h5>
+
+                            <div class="form-check form-switch mb-3">
+                                {{ form.allow_registration }}
+                                <label class="form-check-label ms-2" for="{{ form.allow_registration.id_for_label }}">
+                                    <strong>Allow New Registrations</strong>
+                                    <div class="small text-muted">Enable public sign-ups for new tenants.</div>
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch">
+                                {{ form.maintenance_mode }}
+                                <label class="form-check-label ms-2" for="{{ form.maintenance_mode.id_for_label }}">
+                                    <strong>Maintenance Mode</strong>
+                                    <div class="small text-muted text-danger">Wait! Enabling this will block access for
+                                        all users except Super Admins.</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+                            <a href="{% url 'superuser_dashboard' %}"
+                                class="btn btn-light border fw-medium px-4">Cancel</a>
+                            <button type="submit" class="btn btn-warning fw-bold px-5 text-dark">
+                                Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-4 d-flex align-items-center shadow-sm">
+                <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                <div>
+                    <strong>Note:</strong> Changes to "Platform Name" or "Currency" will be reflected across all tenant
+                    dashboards immediately.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

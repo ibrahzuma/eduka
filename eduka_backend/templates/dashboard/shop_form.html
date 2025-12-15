@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-white py-4 px-5 border-bottom border-light">
+                    <h5 class="fw-bold mb-0 text-gray-800">
+                        {% if form.instance.pk %}Edit Shop{% else %}Create New Tenant{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body p-5">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-gray-700">Shop Owner</label>
+                            {{ form.owner }}
+                            <div class="form-text">Select an existing user or create a new user first in User
+                                Management.</div>
+                            {% if form.owner.errors %}
+                            <div class="text-danger small mt-1">{{ form.owner.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-gray-700">Shop Name</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-gray-700">Phone Number</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-gray-700">Email Address</label>
+                                {{ form.email }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-gray-700">Website</label>
+                                {{ form.website }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-gray-700">Address</label>
+                            {{ form.address }}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-gray-700">Logo</label>
+                            {{ form.logo }}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-5">
+                            <a href="{% url 'superuser_shop_list' %}"
+                                class="btn btn-light border fw-medium px-4">Cancel</a>
+                            <button type="submit" class="btn btn-primary fw-medium px-5">
+                                {% if form.instance.pk %}Save Changes{% else %}Create Shop{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

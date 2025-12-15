@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Purchase Orders</h1>
+        <a href="{% url 'purchase_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Record Purchase
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">All Purchases</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>PO ID</th>
+                            <th>Date</th>
+                            <th>Supplier</th>
+                            <th>Status</th>
+                            <th>Total Cost</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for po in purchases %}
+                        <tr>
+                            <td>#{{ po.id }}</td>
+                            <td>{{ po.created_at|date:"M d, Y" }}</td>
+                            <td>{{ po.supplier.name|default:"Unknown" }}</td>
+                            <td>
+                                {% if po.status == 'RECEIVED' %}
+                                <span class="badge bg-success">Received</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-bold">{{ po.total_cost|intcomma }} TZS</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-info"><i class="bi bi-eye"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <p class="text-gray-500">No purchase orders found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Inventory Aging Report</h1>
+    <p class="mb-4">Analysis based on last product update time. Useful for identifying slow-moving items.</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Aging Stock List</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Last Updated</th>
+                            <th>Stock Age</th>
+                            <th>Total Value (Est)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in aging_stocks %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.updated_at|date:"M d, Y" }}</td>
+                            <td>{{ product.updated_at|timesince }} ago</td>
+                            <td>{{ product.selling_price }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No data available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

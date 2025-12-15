@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-inline-flex align-items-center justify-content-center"
+                            style="width: 80px; height: 80px; font-size: 2rem;">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                    </div>
+
+                    <h3 class="fw-bold text-gray-900 mb-3">Delete Shop?</h3>
+                    <p class="text-secondary mb-4">
+                        Are you sure you want to delete <strong>{{ shop.name }}</strong>?<br>
+                        This action cannot be undone and will delete all associated data (Sales, Inventory, etc).
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-3 d-sm-flex justify-content-center">
+                            <a href="{% url 'superuser_shop_list' %}"
+                                class="btn btn-light border fw-bold px-4">Cancel</a>
+                            <button type="submit" class="btn btn-danger fw-bold px-4">Delete Shop</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

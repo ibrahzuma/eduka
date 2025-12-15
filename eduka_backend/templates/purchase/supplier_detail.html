@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ supplier.name }}</h1>
+        <div>
+            <a href="{% url 'supplier_update' supplier.pk %}" class="btn btn-sm btn-secondary shadow-sm me-2">
+                <i class="bi bi-pencil"></i> Edit Details
+            </a>
+            <a href="{% url 'supplier_list' %}" class="btn btn-sm btn-outline-secondary shadow-sm">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Contact Info Card -->
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card shadow h-100 py-2 border-left-primary">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Contact Person</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ supplier.contact_name|default:"-" }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-person fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card shadow h-100 py-2 border-left-success">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Contact Info</div>
+                            <div class="mb-0 font-weight-bold text-gray-800">
+                                <i class="bi bi-telephone me-1"></i> {{ supplier.phone|default:"-" }}<br>
+                                <i class="bi bi-envelope me-1"></i> {{ supplier.email|default:"-" }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-chat-dots fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card shadow h-100 py-2 border-left-info">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Address</div>
+                            <div class="mb-0 font-weight-bold text-gray-800">
+                                {{ supplier.address|default:"No address provided"|linebreaksbr }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-geo-alt fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase History -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-white">
+            <h6 class="m-0 font-weight-bold text-primary">Recent Purchase Orders</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>PO #</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Total Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for po in recent_purchases %}
+                        <tr>
+                            <td>#{{ po.id }}</td>
+                            <td>{{ po.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <span
+                                    class="badge {% if po.status == 'RECEIVED' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ po.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="text-end fw-bold">{{ po.total_cost|intcomma }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No purchase history yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

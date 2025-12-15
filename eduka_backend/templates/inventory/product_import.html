@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Import Products</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">1. Download Template</h6>
+                </div>
+                <div class="card-body">
+                    <p>To ensure your products are imported correctly, please download and use our formatted Excel/CSV
+                        template.</p>
+                    <p class="text-warning small"><i class="bi bi-exclamation-triangle"></i> Do not change the column
+                        headers in the template.</p>
+                    <a href="{% url 'product_import_template' %}" class="btn btn-info text-white">
+                        <i class="bi bi-download me-2"></i> Download CSV Template
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">2. Upload Filled File</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Select CSV File</label>
+                            <input type="file" class="form-control" name="file" accept=".csv" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-cloud-upload me-2"></i> Upload and Import
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

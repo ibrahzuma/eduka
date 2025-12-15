@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Settings</h1>
+    </div>
+
+    <div class="row">
+        <!-- Duka Details Form -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Duka Details</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Duka Name</label>
+                            {{ form.name }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Duka Address</label>
+                            {{ form.address }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Duka Website</label>
+                                {{ form.website }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Phone Number</label>
+                                {{ form.phone }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email Address</label>
+                            {{ form.email }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Duka Logo</label>
+                            <div class="d-flex align-items-center mb-2">
+                                {% if shop.logo %}
+                                <img src="{{ shop.logo.url }}" alt="Logo" class="img-thumbnail me-3"
+                                    style="max-height: 80px;">
+                                {% else %}
+                                <div class="bg-light border rounded p-3 me-3 text-muted">No Logo</div>
+                                {% endif %}
+                                {{ form.logo }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Details Card -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Billing Details</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <small class="text-muted text-uppercase fw-bold">Pricing Plan</small>
+                        <h4 class="font-weight-bold text-dark mt-1">
+                            Duka
+                        </h4>
+                    </div>
+
+                    <div class="mb-4">
+                        <small class="text-muted text-uppercase fw-bold">Trial days left</small>
+                        <h4 class="font-weight-bold text-dark mt-1">
+                            {{ trial_days_left|default:"6" }} Days
+                        </h4>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted text-uppercase fw-bold">Next billing date</small>
+                        <p class="h5 mt-1 text-gray-800">
+                            21, Dec 2025
+                            <span class="text-muted fs-6">( Tshs 60,000.00)</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

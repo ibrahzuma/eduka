@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Account Details</h1>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <!-- Duka Details & Logo Section -->
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow mb-4 border-0 rounded-3">
+                    <div
+                        class="card-header py-3 bg-white border-bottom-0 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Duka Details</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Left Column: Form Fields -->
+                            <div class="col-md-7 border-end">
+                                <div class="mb-3">
+                                    <label for="shopName"
+                                        class="form-label text-muted small fw-bold text-uppercase">Duka Name</label>
+                                    <input type="text" class="form-control" id="shopName" name="shop_name"
+                                        value="{{ shop.name }}" placeholder="Enter Shop Name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="shopAddress"
+                                        class="form-label text-muted small fw-bold text-uppercase">Duka Address</label>
+                                    <textarea class="form-control" id="shopAddress" name="address" rows="2"
+                                        placeholder="Start typing address...">{{ shop.address|default:'' }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="shopWebsite"
+                                        class="form-label text-muted small fw-bold text-uppercase">Duka Website</label>
+                                    <input type="url" class="form-control" id="shopWebsite" name="website"
+                                        value="{{ shop.website|default:'' }}" placeholder="www.example.com">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="shopPhone"
+                                            class="form-label text-muted small fw-bold text-uppercase">Phone
+                                            Number</label>
+                                        <input type="text" class="form-control" id="shopPhone" name="phone"
+                                            value="{{ shop.phone|default:'' }}" placeholder="255...">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="shopEmail"
+                                            class="form-label text-muted small fw-bold text-uppercase">Email
+                                            Address</label>
+                                        <input type="email" class="form-control" id="shopEmail" name="email"
+                                            value="{{ shop.email|default:'' }}" placeholder="email@example.com">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Logo Upload -->
+                            <div class="col-md-5 d-flex flex-column align-items-center justify-content-center pt-3">
+                                <div class="mb-3 text-center">
+                                    {% if shop.logo %}
+                                    <div class="position-relative d-inline-block">
+                                        <img src="{{ shop.logo.url }}" alt="Shop Logo"
+                                            class="img-thumbnail rounded-circle shadow-sm"
+                                            style="width: 150px; height: 150px; object-fit: cover;">
+                                    </div>
+                                    {% else %}
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted border border-dashed"
+                                        style="width: 150px; height: 150px;">
+                                        <div class="text-center">
+                                            <i class="bi bi-image fs-1 d-block mb-1"></i>
+                                            <small>No Logo</small>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3 w-100 px-4">
+                                    <label for="shopLogo"
+                                        class="form-label text-muted small fw-bold text-uppercase text-center w-100">Add
+                                        Logo</label>
+                                    <input class="form-control form-control-sm" type="file" id="shopLogo" name="logo">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary px-4 fw-bold rounded-pill shadow-sm">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Details -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow mb-4 border-0 rounded-3">
+                    <div class="card-header py-3 bg-white border-bottom-0">
+                        <h6 class="m-0 font-weight-bold text-primary">Billing Details</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <label class="text-muted small fw-bold text-uppercase d-block">Pricing Plan</label>
+                            <span class="fs-5 fw-bold text-dark">{{ shop.settings.get_plan_display|default:"Trial"
+                                }}</span>
+                        </div>
+
+                        {% if shop.settings.plan == 'TRIAL' %}
+                        <div class="mb-4">
+                            <label class="text-muted small fw-bold text-uppercase d-block">Trial days left</label>
+                            <!-- Simple calculation logic for display, assuming backend logic handles trial expiry -->
+                            <span class="badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill">
+                                {{ shop.settings.trial_ends_at|timeuntil|default:"0 days" }}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-4">
+                            <label class="text-muted small fw-bold text-uppercase d-block">Next billing date</label>
+                            <div class="d-flex align-items-center">
+                                <span class="fs-6 text-dark me-2">
+                                    {{ shop.settings.next_billing_date|date:"d, M Y"|default:"-" }}
+                                </span>
+                                {% if shop.settings.billing_amount > 0 %}
+                                <span class="text-muted small">
+                                    ( {{ shop.settings.currency }} {{ shop.settings.billing_amount|intcomma }} )
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-outline-primary rounded-pill">Manage
+                                Subscription</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme Preference (Optional/Secondary) -->
+                <!-- <div class="card shadow mb-4 border-0 rounded-3">
+                     ... theme logic if needed ...
+                </div> -->
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<style>
+    /* Super User Dashboard Specifics */
+    .metric-card-saas {
+        border: none;
+        border-radius: 12px;
+        background: white;
+        padding: 24px;
+        transition: transform 0.2s;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .metric-card-saas:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .metric-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 16px;
+    }
+
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 4px;
+        line-height: 1;
+    }
+
+    .metric-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .table-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .saas-table th {
+        background: #f9fafb;
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 12px 24px;
+    }
+
+    .saas-table td {
+        padding: 16px 24px;
+        vertical-align: middle;
+        color: #374151;
+        font-size: 0.95rem;
+    }
+
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-trial {
+        background: #dbEqff;
+        color: #1e40af;
+    }
+
+    .status-inactive {
+        background: #f3f4f6;
+        color: #4b5563;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="h3 fw-bold text-gray-900 mb-1">Super Admin Dashboard</h1>
+            <p class="text-muted mb-0">Overview of your SaaS Platform Performance</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-white shadow-sm border fw-medium">
+                <i class="bi bi-download me-2"></i>Export Report
+            </button>
+            <button class="btn btn-primary fw-medium px-4">
+                <i class="bi bi-plus-lg me-2"></i>New Tenant
+            </button>
+        </div>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="row g-4 mb-5">
+        <!-- Metric 1: Total Shops -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card-saas">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="metric-icon-wrapper bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-shop"></i>
+                        </div>
+                        <div class="metric-value">{{ total_shops }}</div>
+                        <div class="metric-label">Active Shops</div>
+                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success">+12%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric 2: Total Revenue -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card-saas">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="metric-icon-wrapper bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                        <div class="metric-value">{{ total_revenue|intcomma }}</div>
+                        <div class="metric-label">Total GMV (Sales)</div>
+                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success">+8%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric 3: Users -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card-saas">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="metric-icon-wrapper bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="metric-value">{{ total_users }}</div>
+                        <div class="metric-label">Shop Owners</div>
+                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success">+24%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric 4: Subs (Placeholder) -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card-saas">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="metric-icon-wrapper bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-star"></i>
+                        </div>
+                        <div class="metric-value">0</div>
+                        <div class="metric-label">Pro Subscribers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Shops Table -->
+        <div class="col-lg-8">
+            <div class="table-card">
+                <div class="table-header">
+                    <h5 class="fw-bold mb-0">Recent Registrations</h5>
+                    <a href="#" class="text-primary text-decoration-none fw-bold small">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table saas-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Shop Name</th>
+                                <th>Owner</th>
+                                <th>Registered</th>
+                                <th>Status</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for shop in recent_shops %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
+                                            style="width: 40px; height: 40px; font-weight: bold; background-color: #f3f4f6;">
+                                            {{ shop.name|slice:":1" }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ shop.name }}</div>
+                                            <div class="small text-muted">{{ shop.phone|default:"-" }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">{{ shop.owner.username }}</div>
+                                    <div class="small text-muted">{{ shop.owner.email }}</div>
+                                </td>
+                                <td>{{ shop.created_at|date:"M d, Y" }}</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td class="text-end">
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="shop_id" value="{{ shop.id }}">
+                                        <input type="hidden" name="action_type" value="toggle_status">
+                                        {% if shop.subscription.status == 'ACTIVE' %}
+                                        <button type="submit" name="status" value="CANCELLED"
+                                            class="btn btn-sm btn-outline-danger" title="Suspend Shop">
+                                            <i class="bi bi-pause-circle"></i>
+                                        </button>
+                                        {% else %}
+                                        <button type="submit" name="status" value="ACTIVE"
+                                            class="btn btn-sm btn-outline-success" title="Activate Shop">
+                                            <i class="bi bi-play-circle"></i>
+                                        </button>
+                                        {% endif %}
+                                    </form>
+                                    <button class="btn btn-sm btn-outline-secondary border-0"><i
+                                            class="bi bi-three-dots-vertical"></i></button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">No shops found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions Feed -->
+        <div class="col-lg-4">
+            <div class="table-card h-100">
+                <div class="table-header">
+                    <h5 class="fw-bold mb-0">Recent Subscription Activity</h5>
+                </div>
+                <div class="p-0">
+                    {% for sub in recent_subscriptions %}
+                    <div class="p-3 border-bottom d-flex align-items-center">
+                        <div class="bg-light rounded p-2 me-3 text-center" style="min-width: 50px;">
+                            <small class="d-block fw-bold text-muted">{{ sub.updated_at|date:"M" }}</small>
+                            <span class="fw-bold">{{ sub.updated_at|date:"d" }}</span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">{{ sub.shop.name }}</div>
+                            <div class="small text-muted">{{ sub.plan.name }} - <span class="badge bg-secondary"
+                                    style="font-size: 0.6em;">{{ sub.status }}</span></div>
+                        </div>
+                        <div class="text-end fw-bold text-primary">
+                            {{ sub.plan.price|intcomma }}
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% if not recent_subscriptions %}
+                    <div class="p-5 text-center text-muted">No recent activity</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

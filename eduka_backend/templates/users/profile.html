@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <!-- Profile Sidebar -->
+    <div class="col-md-4 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body text-center p-5">
+                <div class="mb-4 position-relative d-inline-block">
+                    {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" class="rounded-circle shadow mx-auto"
+                        style="width: 100px; height: 100px; object-fit: cover;">
+                    {% else %}
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow mx-auto"
+                        style="width: 100px; height: 100px; font-size: 3rem;">
+                        {{ user.username|first|upper }}
+                    </div>
+                    {% endif %}
+                    <div class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle p-2">
+                    </div>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">{{ user.username|title }}</h4>
+                <p class="text-muted mb-3">
+                    {% if user.is_superuser %}Administrator{% else %}{{
+                    user.assigned_role.name|default:user.get_role_display|title }}{% endif %}
+                </p>
+
+                <div class="d-grid gap-2 mt-4">
+                    <!-- Trigger file input via JS or just simple form field below -->
+                </div>
+
+                <div class="mt-4 text-start">
+                    <h6 class="text-secondary small text-uppercase fw-bold mb-3">Account Info</h6>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-calendar3 text-muted me-3"></i>
+                        <div>
+                            <span class="d-block text-dark small fw-bold">Joined</span>
+                            <span class="text-muted small">{{ user.date_joined|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-shield-lock text-muted me-3"></i>
+                        <div>
+                            <span class="d-block text-dark small fw-bold">Login Status</span>
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Settings -->
+    <div class="col-md-8 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 fw-bold">Profile Details</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label text-muted small fw-bold">Profile Picture</label>
+                            {{ form.profile_picture }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">Username</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">Email Address</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">First Name</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">Last Name</label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">Phone Number</label>
+                            {{ form.phone }}
+                        </div>
+                    </div>
+
+                    <hr class="my-4 text-muted opacity-25">
+
+                    <div class="d-flex justify-content-end">
+                        <button type="reset" class="btn btn-light rounded-pill px-4 me-2">Discard</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

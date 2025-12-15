@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Stock Logs (History)</h1>
+        <a href="{% url 'stock_list' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Stock Levels
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Recent Movements</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Product</th>
+                            <th>Branch</th>
+                            <th>Type</th>
+                            <th>Change</th>
+                            <th>Reason</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movement in movements %}
+                        <tr>
+                            <td>{{ movement.created_at|date:"M d, Y H:i" }}</td>
+                            <td>{{ movement.product.name }}</td>
+                            <td>{{ movement.branch.name }}</td>
+                            <td>
+                                {% if movement.movement_type == 'ADD' %}
+                                <span class="badge bg-success">Add</span>
+                                {% elif movement.movement_type == 'REDUCE' %}
+                                <span class="badge bg-danger">Reduce</span>
+                                {% elif movement.movement_type == 'SET' %}
+                                <span class="badge bg-info text-dark">Set</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ movement.movement_type }}</span>
+                                {% endif %}
+                            </td>
+                            <td
+                                class="{% if movement.quantity_change > 0 %}text-success fw-bold{% elif movement.quantity_change < 0 %}text-danger fw-bold{% endif %}">
+                                {% if movement.quantity_change > 0 %}+{% endif %}{{ movement.quantity_change }}
+                            </td>
+                            <td>{{ movement.reason|default:"-" }}</td>
+                            <td>{{ movement.user.username|default:"System" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <p class="text-gray-500">No updated history found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <div class="mt-3">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                        {% endif %}
+
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" id="report-container">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h1 class="h3 mb-0 text-gray-800">Income Statement</h1>
+        <div class="btn-group">
+            <button onclick="window.print()" class="btn btn-secondary btn-sm me-2">
+                <i class="bi bi-printer"></i> Print / Save PDF
+            </button>
+            <button onclick="exportTableToCSV('income_statement.csv')" class="btn btn-success btn-sm me-2">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Save CSV
+            </button>
+            <button onclick="shareReport()" class="btn btn-primary btn-sm">
+                <i class="bi bi-share"></i> Share
+            </button>
+        </div>
+    </div>
+
+    <!-- Print Header (Visible only on print) -->
+    <div class="d-none d-print-block text-center mb-4">
+        <img src="{% static 'img/eduka_logo.png' %}" alt="eDuka Logo" style="height: 60px; margin-bottom: 10px;">
+        <h1 class="h2 mb-2">Income Statement</h1>
+        <p class="text-muted">Generated on: {% now "F j, Y, H:i" %}</p>
+        <hr>
+    </div>
+
+    <div class="row justify-content-center print-full-width">
+        <div class="col-lg-8 print-col-12">
+            <div class="card shadow mb-4 print-no-shadow">
+                <div class="card-header py-3 no-print">
+                    <h6 class="m-0 font-weight-bold text-primary">Profit & Loss Statement</h6>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table mb-0" id="incomeTable">
+                        <tbody>
+                            <tr class="table-success print-bg-success">
+                                <td class="p-3"><strong>Total Revenue (Sales)</strong></td>
+                                <td class="text-end fw-bold p-3">{{ total_income|intcomma }} TZS</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3">Cost of Goods Sold (COGS)</td>
+                                <td class="text-end text-danger p-3">({{ total_cogs|intcomma }} TZS)</td>
+                            </tr>
+                            <tr class="table-light fw-bold print-bg-light">
+                                <td class="p-3">Gross Profit</td>
+                                <td class="text-end p-3">{{ gross_profit|intcomma }} TZS</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3">Total Expenses</td>
+                                <td class="text-end text-danger p-3">({{ total_expenses|intcomma }} TZS)</td>
+                            </tr>
+                            <tr class="table-dark fs-5 print-bg-dark text-white">
+                                <td class="p-3">Net Profit</td>
+                                <td
+                                    class="text-end {% if net_profit >= 0 %}text-success{% else %}text-danger{% endif %} p-3">
+                                    {{ net_profit|intcomma }} TZS</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Footer -->
+    <div class="d-none d-print-block text-center mt-5">
+        <hr>
+        <p class="small text-muted">eDuka Shop Manager | Printed by {{ user.username }}</p>
+    </div>
+</div>
+
+<style>
+    @media print {
+        @page {
+            margin: 1cm;
+            size: A4;
+        }
+
+        body {
+            background-color: white !important;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body * {
+            visibility: hidden;
+        }
+
+        #report-container,
+        #report-container * {
+            visibility: visible;
+        }
+
+        #report-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+        .card {
+            border: 1px solid #ddd !important;
+            box-shadow: none !important;
+            break-inside: avoid;
+        }
+
+        .print-no-shadow {
+            box-shadow: none !important;
+        }
+
+        .print-full-width {
+            width: 100% !important;
+            display: block !important;
+        }
+
+        .print-col-12 {
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* Color adjustments for print */
+        .print-bg-success {
+            background-color: #d1e7dd !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .print-bg-light {
+            background-color: #f8f9fa !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .print-bg-dark {
+            background-color: #212529 !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .text-white {
+            color: black !important;
+            /* Better for print unless dark bg works well */
+        }
+
+        .print-bg-dark.text-white {
+            color: white !important;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+    }
+</style>
+
+<script>
+    function exportTableToCSV(filename) {
+        var csv = [];
+        var rows = document.querySelectorAll("table tr");
+
+        for (var i = 0; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td, th");
+
+            for (var j = 0; j < cols.length; j++)
+                row.push('"' + cols[j].innerText + '"');
+
+            csv.push(row.join(","));
+        }
+
+        downloadCSV(csv.join("\n"), filename);
+    }
+
+    function downloadCSV(csv, filename) {
+        var csvFile;
+        var downloadLink;
+
+        csvFile = new Blob([csv], { type: "text/csv" });
+        downloadLink = document.createElement("a");
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+    }
+
+    function shareReport() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Income Statement',
+                url: window.location.href
+            }).then(() => {
+                console.log('Thanks for sharing!');
+            })
+                .catch(console.error);
+        } else {
+            // Fallback
+            navigator.clipboard.writeText(window.location.href);
+            alert('Link copied to clipboard!');
+        }
+    }
+</script>
+{% endblock %}

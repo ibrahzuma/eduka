@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" id="report-container">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h1 class="h3 mb-0 text-gray-800">Expenses Report</h1>
+        <div class="btn-group">
+            <button onclick="window.print()" class="btn btn-secondary btn-sm me-2">
+                <i class="bi bi-printer"></i> Print / Save PDF
+            </button>
+            <button onclick="exportTableToCSV('expenses_report.csv')" class="btn btn-success btn-sm me-2">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Save CSV
+            </button>
+            <button onclick="shareReport()" class="btn btn-primary btn-sm">
+                <i class="bi bi-share"></i> Share
+            </button>
+        </div>
+    </div>
+
+    <!-- Print Header (Visible only on print) -->
+    <div class="d-none d-print-block text-center mb-4">
+        <img src="{% static 'img/eduka_logo.png' %}" alt="eDuka Logo" style="height: 60px; margin-bottom: 10px;">
+        <h1 class="h2 mb-2">Expenses Report</h1>
+        <p class="text-muted">Generated on: {% now "F j, Y, H:i" %}</p>
+        <hr>
+    </div>
+
+    <div class="row mb-4 d-print-flex">
+        <div class="col-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2 print-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Total Expenses</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_expenses|intcomma }} TZS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4 print-no-shadow">
+        <div class="card-header py-3 no-print">
+            <h6 class="m-0 font-weight-bold text-primary">Expense Details</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="expensesTable" width="100%" cellspacing="0">
+                    <thead class="bg-primary text-white print-header">
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                        <tr>
+                            <td>{{ expense.date|date:"M d, Y" }}</td>
+                            <td>{{ expense.category }}</td>
+                            <td>{{ expense.description }}</td>
+                            <td>{{ expense.amount|intcomma }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Footer -->
+    <div class="d-none d-print-block text-center mt-5">
+        <hr>
+        <p class="small text-muted">eDuka Shop Manager | Printed by {{ user.username }}</p>
+    </div>
+</div>
+
+<style>
+    @media print {
+        @page {
+            margin: 1cm;
+            size: A4;
+        }
+
+        body {
+            background-color: white !important;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body * {
+            visibility: hidden;
+        }
+
+        #report-container,
+        #report-container * {
+            visibility: visible;
+        }
+
+        #report-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+        .card {
+            border: 1px solid #ddd !important;
+            box-shadow: none !important;
+            break-inside: avoid;
+        }
+
+        .print-no-shadow {
+            box-shadow: none !important;
+        }
+
+        .print-header {
+            background-color: #4e73df !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, .05) !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+    }
+</style>
+
+<script>
+    function exportTableToCSV(filename) {
+        var csv = [];
+        var rows = document.querySelectorAll("table tr");
+
+        for (var i = 0; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td, th");
+
+            for (var j = 0; j < cols.length; j++)
+                row.push('"' + cols[j].innerText + '"');
+
+            csv.push(row.join(","));
+        }
+
+        downloadCSV(csv.join("\n"), filename);
+    }
+
+    function downloadCSV(csv, filename) {
+        var csvFile;
+        var downloadLink;
+
+        csvFile = new Blob([csv], { type: "text/csv" });
+        downloadLink = document.createElement("a");
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+    }
+
+    function shareReport() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Expenses Report',
+                url: window.location.href
+            }).then(() => {
+                console.log('Thanks for sharing!');
+            })
+                .catch(console.error);
+        } else {
+            // Fallback
+            navigator.clipboard.writeText(window.location.href);
+            alert('Link copied to clipboard!');
+        }
+    }
+</script>
+{% endblock %}

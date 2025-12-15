@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Add New Product</h1>
+        <a href="{% url 'product_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Add Product/Service (Sajili Bidhaa/Huduma)</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.product_type.label }}</label>
+                            {{ form.product_type }}
+                            {{ form.product_type.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.name.label }}</label>
+                            {{ form.name }}
+                            {{ form.name.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.category.label }}</label>
+                            {{ form.category }}
+                            {{ form.category.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.sku.label }}</label>
+                            {{ form.sku }}
+                            {{ form.sku.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.si_unit.label }}</label>
+                            {{ form.si_unit }}
+                            {{ form.si_unit.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.selling_price.label }}</label>
+                            {{ form.selling_price }}
+                            {{ form.selling_price.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.cost_price.label }}</label>
+                            {{ form.cost_price }}
+                            {{ form.cost_price.errors }}
+                        </div>
+
+                        <hr>
+                        <h6 class="text-primary mb-3">Inventory Details</h6>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.opening_stock.label }}</label>
+                            {{ form.opening_stock }}
+                            {{ form.opening_stock.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.low_stock_threshold.label }}</label>
+                            {{ form.low_stock_threshold }}
+                            {{ form.low_stock_threshold.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.image.label }}</label>
+                            {{ form.image }}
+                            {{ form.image.errors }}
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary px-4">Save Product</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

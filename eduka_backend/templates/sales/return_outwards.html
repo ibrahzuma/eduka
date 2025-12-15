@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Return Outwards (Purchase Returns)</h1>
+
+    <!-- Search Section -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Find Purchase Order</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-center">
+                <div class="col-auto">
+                    {{ search_form.po_id }}
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Search PO</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if po %}
+    <!-- Return Form Section -->
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="po_id" value="{{ po.id }}">
+
+        <div class="row">
+            <!-- PO Details -->
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 bg-info text-white">
+                        <h6 class="m-0 font-weight-bold">PO #{{ po.id }} Details</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Supplier:</strong> {{ po.supplier.name }}</p>
+                        <p><strong>Date:</strong> {{ po.created_at|date:"M d, Y" }}</p>
+                        <p><strong>Total Cost:</strong> {{ po.total_cost|intcomma }}</p>
+                        <hr>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Reason for Return</label>
+                            {{ return_form.reason }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items -->
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Select Items to Return</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Purchased Qty</th>
+                                        <th>Unit Cost</th>
+                                        <th>Return Qty</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in po.items.all %}
+                                    <tr>
+                                        <td>{{ item.product.name }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>{{ item.unit_cost|intcomma }}</td>
+                                        <td width="150">
+                                            <input type="number" name="return_qty_{{ item.id }}" class="form-control"
+                                                min="0" max="{{ item.quantity }}" value="0">
+                                            <small class="text-muted">Max: {{ item.quantity }}</small>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <a href="{% url 'return_outwards' %}" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-danger">Process Return</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<style>
+    /* Premium Invoice Styles */
+    :root {
+        --invoice-primary: #2563eb;
+        /* Royal Blue */
+        --invoice-bg: #ffffff;
+        --invoice-text: #1e293b;
+        --invoice-muted: #64748b;
+        --invoice-border: #e2e8f0;
+    }
+
+    .invoice-container {
+        max-width: 850px;
+        margin: 0 auto;
+        background: var(--invoice-bg);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .invoice-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+        padding: 40px;
+        border-bottom: 1px solid var(--invoice-border);
+    }
+
+    .invoice-body {
+        padding: 40px;
+    }
+
+    .invoice-logo {
+        height: 60px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    .invoice-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -1px;
+        color: var(--invoice-primary);
+        line-height: 1;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    .invoice-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--invoice-muted);
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .invoice-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--invoice-text);
+    }
+
+    .invoice-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 30px 0;
+    }
+
+    .invoice-table th {
+        background: #f1f5f9;
+        color: var(--invoice-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        padding: 12px 16px;
+        text-align: left;
+    }
+
+    .invoice-table th:first-child {
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+    }
+
+    .invoice-table th:last-child {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    .invoice-table td {
+        padding: 16px;
+        border-bottom: 1px solid var(--invoice-border);
+        color: var(--invoice-text);
+        font-size: 0.95rem;
+    }
+
+    .invoice-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .total-section {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 20px;
+        width: 300px;
+        margin-left: auto;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        color: var(--invoice-muted);
+    }
+
+    .total-row.final {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px dashed var(--invoice-border);
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--invoice-primary);
+    }
+
+    .invoice-footer {
+        text-align: center;
+        padding: 30px 40px;
+        background: #f8fafc;
+        border-top: 1px solid var(--invoice-border);
+        color: var(--invoice-muted);
+        font-size: 0.85rem;
+    }
+
+    /* Print Optimization */
+    @media print {
+        @page {
+            margin: 0;
+            size: auto;
+        }
+
+        body * {
+            visibility: hidden;
+        }
+
+        .invoice-container,
+        .invoice-container * {
+            visibility: visible;
+        }
+
+        .invoice-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            max-width: 100% !important;
+            box-shadow: none;
+            border-radius: 0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .invoice-header {
+            background: #f8fafc !important;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Action Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print container" style="max-width: 850px;">
+        <a href="{% url 'sale_list' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">
+            <i class="bi bi-arrow-left me-2"></i> Back
+        </a>
+        <button onclick="window.print()" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+            <i class="bi bi-printer-fill me-2"></i> Print Invoice
+        </button>
+    </div>
+
+    <!-- Main Invoice Card -->
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="invoice-header">
+            <div class="row align-items-center">
+                <div class="col-6">
+                    <img src="{% static 'img/eduka_logo.png' %}" alt="Eduka Logo" class="invoice-logo mb-3">
+                    <div class="ms-1">
+                        <h5 class="fw-bold mb-1">{{ sale.shop.name }}</h5>
+                        <p class="text-muted small mb-0">{{ sale.shop.branches.first.address }}</p>
+                        <p class="text-muted small mb-0">{{ sale.shop.owner.email }}</p>
+                        <p class="text-muted small mb-0">{{ sale.shop.owner.phone }}</p>
+                    </div>
+                </div>
+                <div class="col-6 text-end">
+                    <h1 class="invoice-title">INVOICE</h1>
+                    <p class="text-primary fw-bold mb-4">#{{ sale.id|stringformat:"05d" }}</p>
+
+                    <div class="row g-2 justify-content-end text-start d-inline-block">
+                        <div class="d-flex justify-content-between gap-4">
+                            <div>
+                                <div class="invoice-label">Date Issued</div>
+                                <div class="invoice-value">{{ sale.created_at|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="invoice-body">
+            <!-- Client Info Grid -->
+            <div class="row mb-5">
+                <div class="col-6">
+                    <div class="invoice-label mb-2">Invoice To</div>
+                    {% if sale.customer %}
+                    <h5 class="fw-bold mb-1">{{ sale.customer.name }}</h5>
+                    <div class="text-muted small">
+                        {% if sale.customer.email %}{{ sale.customer.email }}<br>{% endif %}
+                        {% if sale.customer.phone %}{{ sale.customer.phone }}<br>{% endif %}
+                        {{ sale.customer.address|default:"" }}
+                    </div>
+                    {% else %}
+                    <h5 class="fw-bold text-secondary">Walk-in Customer</h5>
+                    <div class="text-muted small">Standard Retail Client</div>
+                    {% endif %}
+                </div>
+                <div class="col-6 text-end">
+                    <div class="invoice-label mb-2">Payment Details</div>
+                    <div class="d-inline-flex align-items-center">
+                        {% if sale.payment_method == 'CASH' %}
+                        <div class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+                            <i class="bi bi-cash me-1"></i> Cash Payment
+                        </div>
+                        {% elif sale.payment_method == 'MOBILE' %}
+                        <div class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill">
+                            <i class="bi bi-phone me-1"></i> Mobile Money
+                        </div>
+                        {% elif sale.payment_method == 'CREDIT' %}
+                        <div class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">
+                            <i class="bi bi-credit-card me-1"></i> Credit / Pending
+                        </div>
+                        {% else %}
+                        <span class="fw-bold">{{ sale.get_payment_method_display }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2 text-muted small">Cashier: {{ sale.cashier.username }}</div>
+                </div>
+            </div>
+
+            <!-- Items -->
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%">#</th>
+                        <th style="width: 45%">Description</th>
+                        <th style="width: 15%" class="text-center">Qty</th>
+                        <th style="width: 15%" class="text-end">Price</th>
+                        <th style="width: 20%" class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in sale.items.all %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <div class="fw-bold">{{ item.product.name }}</div>
+                            <div class="small text-muted">{{ item.product.sku }}</div>
+                        </td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-end">{{ item.price|floatformat:2 }}</td>
+                        <td class="text-end fw-bold">{{ item.get_total|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Summary -->
+            <div class="total-section">
+                <div class="total-row">
+                    <span>Subtotal</span>
+                    <span>{{ sale.total_amount|floatformat:2 }}</span>
+                </div>
+                <div class="total-row">
+                    <span>Tax (0%)</span>
+                    <span>0.00</span>
+                </div>
+                <div class="total-row final">
+                    <span>Total</span>
+                    <span>{{ sale.total_amount|floatformat:2 }} <span
+                            style="font-size: 0.6em; color: initial;">TZS</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="invoice-footer">
+            <h6 class="fw-bold text-dark mb-2">Thank you for shopping with us!</h6>
+            <p class="mb-0">For inquiries, contact us at {{ sale.shop.owner.email }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

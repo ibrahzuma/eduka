@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jiunge na eDuka</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            /* Deep Blue Gradient */
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .register-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .register-card {
+            background: rgba(255, 255, 255, 0.95);
+            /* Slight Glassmorphism */
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 900px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .register-header {
+            background: white;
+            padding: 2.5rem 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .logo-img {
+            height: 100px;
+            /* Increased Size */
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        .form-section {
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1e3c72;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e3e6f0;
+            padding-bottom: 0.5rem;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d3e2;
+            transition: all 0.2s;
+            background-color: #fcfcfc;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
+            background-color: white;
+        }
+
+        .btn-super-cool {
+            background: linear-gradient(90deg, #4e73df 0%, #224abe 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .btn-super-cool:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(78, 115, 223, 0.5);
+        }
+
+        /* Icons in labels */
+        .form-label i {
+            color: #858796;
+            margin-right: 5px;
+        }
+
+        /* Loader Styles */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: none;
+            /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .spinner-border-lg {
+            width: 4rem;
+            height: 4rem;
+            border-width: 0.3em;
+        }
+
+        .loading-text {
+            margin-top: 1rem;
+            font-weight: 600;
+            color: #4e73df;
+            font-size: 1.2rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.6;
+            }
+        }
+    </style>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner-border text-primary spinner-border-lg" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="loading-text">Processing Data...</div>
+    </div>
+
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <!-- Logo Section -->
+                <img src="/static/img/eduka_logo.png" alt="eDuka Logo" class="logo-img">
+                <h4 class="mb-1 fw-bold text-dark">Join eDuka</h4>
+                <p class="text-muted small">Start managing your business effectively.</p>
+            </div>
+
+            <div class="form-section">
+                {% if form.errors %}
+                <div class="alert alert-danger small">
+                    Form contains errors. Please correct them.
+                </div>
+                {% endif %}
+
+                <form method="post" onsubmit="document.getElementById('loading-overlay').style.display = 'flex';">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <!-- Owner Info -->
+                        <div class="col-md-6 mb-3">
+                            <div class="section-title">Owner Details</div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Owner Name</label>
+                                {{ form.username }}
+                                <div class="text-danger small">{{ form.username.errors }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Email Address</label>
+                                {{ form.email }}
+                                <div class="text-danger small">{{ form.email.errors }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Phone Number</label>
+                                {{ form.phone }}
+                                <div class="text-danger small">{{ form.phone.errors }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Business Info -->
+                        <div class="col-md-6 mb-3">
+                            <div class="section-title">Business Details</div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Business Name</label>
+                                {{ form.business_name }}
+                                <div class="text-danger small">{{ form.business_name.errors }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Business Type</label>
+                                {{ form.business_type }}
+                            </div>
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label small fw-bold">Region</label>
+                                    {{ form.region }}
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label small fw-bold">District</label>
+                                    {{ form.district }}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Street / Area</label>
+                                {{ form.street }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="section-title">Security</div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small fw-bold">Password</label>
+                                    {{ form.password }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small fw-bold">Confirm Password</label>
+                                    {{ form.confirm_password }}
+                                    <div class="text-danger small">{{ form.non_field_errors }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-super-cool py-2 fw-bold">Register</button>
+                    </div>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <small class="text-muted">Already have an account? <a href="{% url 'login' %}"
+                            style="text-decoration: none; color: #4e73df;">Login here</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const districtsData = {
+            'Arusha': ['Arusha City', 'Arusha DC', 'Karatu', 'Longido', 'Meru', 'Monduli', 'Ngorongoro'],
+            'Dar es Salaam': ['Ilala', 'Kinondoni', 'Temeke', 'Kigamboni', 'Ubungo'],
+            'Dodoma': ['Dodoma City', 'Bahi', 'Chamwino', 'Chemba', 'Kondoa', 'Kongwa', 'Mpwapwa'],
+            'Geita': ['Geita', 'Bukombe', 'Chato', 'Mbogwe', 'Nyang\'hwale'],
+            'Iringa': ['Iringa MC', 'Iringa DC', 'Kilolo', 'Mafinga TC', 'Mufindi'],
+            'Kagera': ['Bukoba MC', 'Bukoba DC', 'Biharamulo', 'Karagwe', 'Kyerwa', 'Missenyi', 'Muleba', 'Ngara'],
+            'Katavi': ['Mpanda MC', 'Mpanda DC', 'Mlele', 'Nsimbo', 'Tanganyika'],
+            'Kigoma': ['Kigoma-Ujiji MC', 'Kigoma DC', 'Buhigwe', 'Kakonko', 'Kasulu TC', 'Kasulu DC', 'Kibondo', 'Uvinza'],
+            'Kilimanjaro': ['Moshi MC', 'Moshi DC', 'Hai', 'Mwanga', 'Rombo', 'Same', 'Siha'],
+            'Lindi': ['Lindi MC', 'Lindi DC', 'Kilwa', 'Liwale', 'Nachingwea', 'Ruangwa'],
+            'Manyara': ['Babati TC', 'Babati DC', 'Hanang', 'Kiteto', 'Mbulu', 'Simanjiro'],
+            'Mara': ['Musoma MC', 'Musoma DC', 'Bunda', 'Butiama', 'Rorya', 'Serengeti', 'Tarime'],
+            'Mbeya': ['Mbeya City', 'Mbeya DC', 'Busokelo', 'Chunya', 'Kyela', 'Mbarali', 'Rungwe'],
+            'Morogoro': ['Morogoro MC', 'Morogoro DC', 'Gairo', 'Kilombero', 'Kilosa', 'Malinyi', 'Mvomero', 'Ulanga'],
+            'Mtwara': ['Mtwara MC', 'Mtwara DC', 'Masasi TC', 'Masasi DC', 'Nanyamba TC', 'Nanyumbu', 'Newala', 'Tandahimba'],
+            'Mwanza': ['Ilemela', 'Nyamagana', 'Buchosa', 'Kwimba', 'Magu', 'Misungwi', 'Sengerema', 'Ukerewe'],
+            'Njombe': ['Njombe TC', 'Njombe DC', 'Ludewa', 'Makambako TC', 'Makete', 'Wanging\'ombe'],
+            'Pemba North': ['Micheweni', 'Wete'],
+            'Pemba South': ['Chake Chake', 'Mkoani'],
+            'Pwani': ['Kibaha TC', 'Kibaha DC', 'Bagamoyo', 'Chalinze', 'Kisarawe', 'Mafia', 'Mkuranga', 'Rufiji'],
+            'Rukwa': ['Sumbawanga MC', 'Sumbawanga DC', 'Kalambo', 'Nkasi'],
+            'Ruvuma': ['Songea MC', 'Songea DC', 'Mbinga TC', 'Mbinga DC', 'Namtumbo', 'Nyasa', 'Tunduru'],
+            'Shinyanga': ['Shinyanga MC', 'Shinyanga DC', 'Kahama MC', 'Kahama DC', 'Kishapu', 'Msalala', 'Ushetu'],
+            'Simiyu': ['Bariadi TC', 'Bariadi DC', 'Busega', 'Itilima', 'Maswa', 'Meatu'],
+            'Singida': ['Singida MC', 'Singida DC', 'Ikungi', 'Iramba', 'Itigi', 'Manyoni', 'Mkalama'],
+            'Songwe': ['Vwawa', 'Tunduma', 'Ileje', 'Mbozi', 'Momba'],
+            'Tabora': ['Tabora MC', 'Igunga', 'Kaliua', 'Nzega TC', 'Nzega DC', 'Sikonge', 'Urambo', 'Uyui'],
+            'Tanga': ['Tanga City', 'Handeni TC', 'Handeni DC', 'Kilindi', 'Korogwe TC', 'Korogwe DC', 'Lushoto', 'Muheza', 'Pangani', 'Bumbuli'],
+            'Unguja North': ['Kaskazini A', 'Kaskazini B'],
+            'Unguja South': ['Kusini', 'Kati'],
+            'Unguja Urban/West': ['Mjini', 'Magharibi A', 'Magharibi B'],
+        };
+
+        const regionSelect = document.getElementById('id_region');
+        const districtSelect = document.getElementById('id_district');
+
+        regionSelect.addEventListener('change', function () {
+            const selectedRegion = this.value;
+            const districts = districtsData[selectedRegion] || [];
+
+            // Clear current options
+            districtSelect.innerHTML = '<option value="">Select District</option>';
+
+            // Add new options
+            districts.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+
+            // If no districts found for region but region is selected, allow free text or generic? 
+            // For now, if list is empty, maybe show "Other" or keep empty.
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

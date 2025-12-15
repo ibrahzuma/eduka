@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-gray-900 mb-1">Manage Shops</h1>
+            <p class="text-muted mb-0">View and manage all SaaS tenants</p>
+        </div>
+        <a href="{% url 'superuser_shop_create' %}" class="btn btn-primary fw-medium px-4">
+            <i class="bi bi-plus-lg me-2"></i>New Tenant
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0 text-gray-800">Shop Directory</h5>
+            <form class="d-flex" method="get">
+                <input type="text" name="q" class="form-control form-control-sm me-2" placeholder="Search shops..."
+                    value="{{ request.GET.q }}">
+                <button type="submit" class="btn btn-sm btn-outline-primary"><i class="bi bi-search"></i></button>
+            </form>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 table-hover">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="px-4 py-3 text-uppercase small fw-bold text-secondary">Shop Name</th>
+                        <th class="px-4 py-3 text-uppercase small fw-bold text-secondary">Owner</th>
+                        <th class="px-4 py-3 text-uppercase small fw-bold text-secondary">Plan</th>
+                        <th class="px-4 py-3 text-uppercase small fw-bold text-secondary">Status</th>
+                        <th class="px-4 py-3 text-uppercase small fw-bold text-secondary">Joined</th>
+                        <th class="px-4 py-3 text-uppercase small fw-bold text-secondary text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shop in shops %}
+                    <tr>
+                        <td class="px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 fw-bold"
+                                    style="width: 40px; height: 40px;">
+                                    {{ shop.name|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ shop.name }}</div>
+                                    <div class="small text-muted">{{ shop.phone|default:"-" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="fw-semibold">{{ shop.owner.username }}</div>
+                            <div class="small text-muted">{{ shop.owner.email }}</div>
+                        </td>
+                        <td class="px-4 py-3">
+                            {% if shop.subscription.plan %}
+                            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">{{
+                                shop.subscription.plan.name }}</span>
+                            {% else %}
+                            <span class="badge bg-light text-secondary border">No Plan</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3">
+                            {% if shop.subscription.status == 'ACTIVE' %}
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Active</span>
+                            {% elif shop.subscription.status == 'CANCELLED' %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Suspended</span>
+                            {% else %}
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">{{
+                                shop.subscription.status|default:"Unknown" }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-muted small">
+                            {{ shop.created_at|date:"M d, Y" }}
+                        </td>
+                        <td class="px-4 py-3 text-end">
+                            <form method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="shop_id" value="{{ shop.id }}">
+                                <input type="hidden" name="action_type" value="toggle_status">
+                                {% if shop.subscription.status == 'ACTIVE' %}
+                                <button type="submit" name="status" value="CANCELLED"
+                                    class="btn btn-sm btn-light text-danger" title="Suspend">
+                                    <i class="bi bi-pause-circle"></i>
+                                </button>
+                                {% else %}
+                                <button type="submit" name="status" value="ACTIVE"
+                                    class="btn btn-sm btn-light text-success" title="Activate">
+                                    <i class="bi bi-play-circle"></i>
+                                </button>
+                                {% endif %}
+                            </form>
+                            <a href="{% url 'superuser_shop_update' shop.pk %}"
+                                class="btn btn-sm btn-light text-primary ms-1" title="Edit"><i
+                                    class="bi bi-pencil"></i></a>
+                            <a href="{% url 'superuser_shop_delete' shop.pk %}"
+                                class="btn btn-sm btn-light text-danger ms-1" title="Delete"><i
+                                    class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-shop fs-1 d-block mb-3 opacity-25"></i>
+                            No shops found matching your criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white py-3 px-4 border-top">
+            <!-- Pagination Placeholder -->
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">Showing {{ shops.count }} results</small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

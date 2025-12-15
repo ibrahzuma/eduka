@@ -1,0 +1,538 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eDuka - The Modern POS for Tanzania</title>
+
+    <!-- Google Fonts: Inter & Plus Jakarta Sans for Modern Feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            /* Royal Blue - similar to Indeii blue */
+            --primary-dark: #1e40af;
+            --dark: #0f172a;
+            /* Slate 900 */
+            --light: #f8fafc;
+            /* Slate 50 */
+            --text-main: #1e293b;
+            /* Slate 800 - High contrast text */
+            --text-light: #64748b;
+            /* Slate 500 */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background-color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        .brand-font {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--dark);
+        }
+
+        /* Utility for spacing */
+        .section-padding {
+            padding: 100px 0;
+        }
+
+        /* Navbar - Clean White */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #f1f5f9;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .nav-link {
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin: 0 10px;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        /* Buttons */
+        .btn-primary-clean {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            /* Slightly squarer than pill */
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary-clean:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+            color: white;
+        }
+
+        .btn-outline-clean {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid #cbd5e1;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-outline-clean:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #f8fafc;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding-top: 180px;
+            padding-bottom: 100px;
+            text-align: center;
+            background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.03) 0%, transparent 60%);
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            /* Massive typography */
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            font-weight: 400;
+        }
+
+        /* Feature Cards - Minimalist */
+        .clean-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .clean-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            border-color: #e2e8f0;
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 24px;
+        }
+
+        /* Mockup Container */
+        .mockup-container {
+            margin-top: 60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .mockup-img {
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Stats Strip */
+        .stats-strip {
+            border-top: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 60px 0;
+            background: #f8fafc;
+        }
+
+        /* Footer */
+        .footer-clean {
+            padding: 80px 0 40px;
+            border-top: 1px solid #f1f5f9;
+            background: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <img src="{% static 'img/eduka_logo.png' %}" alt="eDuka Logo" width="32"
+                    onerror="this.src='https://placehold.co/32x32/2563eb/white?text=E'">
+                <span class="brand-font fw-bold fs-4 text-dark" style="letter-spacing: -0.5px;">eDuka</span>
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="#features">Solutions</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#benefits">Benefits</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+                </ul>
+                <div class="d-flex gap-3">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-primary-clean">Dashboard</a>
+                    {% else %}
+                    <a href="{% url 'login' %}"
+                        class="btn btn-link text-decoration-none text-dark fw-semibold">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary-clean">Get Started</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-full border bg-white text-secondary fw-medium small mb-4 shadow-sm"
+                style="border-radius: 99px;">
+                <span class="text-primary fw-bold">New</span>
+                <span>Version 2.0 is live</span>
+                <i class="bi bi-arrow-right text-muted"></i>
+            </div>
+
+            <h1 class="hero-title text-dark">
+                The operating system <br> for <span class="text-primary">smart retail.</span>
+            </h1>
+
+            <p class="hero-subtitle">
+                Replace your notebooks with a simple, powerful POS. Track sales, inventory, and profits from your phone
+                or laptop.
+            </p>
+
+            <div class="d-flex justify-content-center gap-3 mb-5">
+                {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="btn btn-primary-clean btn-lg px-5">Go to Dashboard</a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary-clean btn-lg px-5">Start Free Trial</a>
+                <a href="#demo" class="btn btn-outline-clean btn-lg px-5">View Demo</a>
+                {% endif %}
+            </div>
+
+            <p class="small text-muted mb-5">
+                <i class="bi bi-check-circle-fill text-success me-1"></i> No credit card required
+                <span class="mx-2">•</span>
+                <i class="bi bi-check-circle-fill text-success me-1"></i> 14-day free trial
+            </p>
+
+            <!-- Hero Image -->
+            <div class="mockup-container">
+                <img src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop"
+                    alt="Dashboard Preview" class="img-fluid mockup-img w-75 d-none d-lg-inline-block">
+                <img src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop"
+                    alt="Dashboard Preview" class="img-fluid mockup-img w-100 d-lg-none">
+            </div>
+        </div>
+    </section>
+
+    <!-- Trusted By Section -->
+    <div class="stats-strip">
+        <div class="container">
+            <p class="text-center text-uppercase text-muted small fw-bold mb-4 letter-spacing-1">Powering 500+
+                businesses across Tanzania</p>
+            <div class="row text-center opacity-50 grayscale g-4">
+                <div class="col-6 col-md-3">
+                    <h4 class="fw-bold mb-0 text-dark">PHARMACIES</h4>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h4 class="fw-bold mb-0 text-dark">SUPERMARKETS</h4>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h4 class="fw-bold mb-0 text-dark">HARDWARE</h4>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h4 class="fw-bold mb-0 text-dark">BOUTIQUES</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <section id="features" class="section-padding">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-lg-6">
+                    <h2 class="display-6 fw-bold mb-3">Everything you need to run your business.</h2>
+                    <p class="text-muted lead">Powerful features designed to help you save time and make more money.</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="clean-card">
+                        <div class="icon-box">
+                            <i class="bi bi-lightning-charge"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Fast Sales</h4>
+                        <p class="text-muted mb-0">Process transactions in seconds. Scan barcodes or tap to sell. Keep
+                            lines moving.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="clean-card">
+                        <div class="icon-box">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Profit Reports</h4>
+                        <p class="text-muted mb-0">Know your daily profit instantly. We calculate costs and margins for
+                            you automatically.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="clean-card">
+                        <div class="icon-box">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Stock Control</h4>
+                        <p class="text-muted mb-0">Never run out of best-sellers. Get low stock alerts sent directly to
+                            your phone.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="clean-card">
+                        <div class="icon-box">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Employee Mgmt</h4>
+                        <p class="text-muted mb-0">Create staff accounts with specific permissions. Track who sold what
+                            and when.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="clean-card">
+                        <div class="icon-box">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Digital Receipts</h4>
+                        <p class="text-muted mb-0">Save paper. Send professional receipts to customers via WhatsApp or
+                            SMS.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="clean-card">
+                        <div class="icon-box">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Secure & Cloud</h4>
+                        <p class="text-muted mb-0">Your data is backed up automatically. Access your shop from anywhere,
+                            anytime.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="section-padding bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-6 fw-bold mb-3">Simple, Transparent Pricing</h2>
+                <p class="text-muted lead">Choose the plan that fits your business.</p>
+            </div>
+
+            <div id="pricing-container" class="row g-4 justify-content-center">
+                <!-- Loading State -->
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-clean">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-4">
+                    <a class="d-flex align-items-center gap-2 mb-4 text-decoration-none" href="#">
+                        <img src="{% static 'img/eduka_logo.png' %}" alt="eDuka" width="28">
+                        <span class="fw-bold fs-5 text-dark">eDuka</span>
+                    </a>
+                    <p class="text-muted small">
+                        The all-in-one retail operating system built for modern African businesses.
+                    </p>
+                    <div class="d-flex gap-3 mt-4">
+                        <a href="#" class="text-muted"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-muted"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-muted"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-muted"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2 offset-md-2">
+                    <h6 class="fw-bold mb-3 text-dark small text-uppercase">Product</h6>
+                    <ul class="list-unstyled small d-flex flex-column gap-2">
+                        <li><a href="#" class="text-muted text-decoration-none">Features</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Pricing</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Updates</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-2">
+                    <h6 class="fw-bold mb-3 text-dark small text-uppercase">Company</h6>
+                    <ul class="list-unstyled small d-flex flex-column gap-2">
+                        <li><a href="#" class="text-muted text-decoration-none">About</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Careers</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-2">
+                    <h6 class="fw-bold mb-3 text-dark small text-uppercase">Legal</h6>
+                    <ul class="list-unstyled small d-flex flex-column gap-2">
+                        <li><a href="#" class="text-muted text-decoration-none">Privacy</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Terms</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-top mt-5 pt-4 text-center">
+                <p class="small text-muted mb-0">&copy; 2025 eDuka SaaS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Pricing Fetch Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/api/pricing/')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('pricing-container');
+                    container.innerHTML = ''; // Clear loading spinner
+
+                    const plans = data.plans || [];
+
+                    // Filter for active plans if API returns all
+                    const activePlans = plans.filter(p => p.is_active);
+
+                    if (activePlans.length === 0) {
+                        container.innerHTML = '<div class="col-12 text-center text-muted">No pricing plans available at the moment.</div>';
+                        return;
+                    }
+
+                    // Assume we want to show the Monthly price for simplicity or the first available option
+                    // Select the first active plan (e.g. Standard)
+                    const plan = activePlans[0];
+
+                    if (!plan) {
+                        container.innerHTML = '<div class="col-12 text-center text-muted">No active plans found.</div>';
+                        return;
+                    }
+
+                    const cycles = [
+                        { id: 'daily', name: 'Daily', suffix: '/day' },
+                        { id: 'weekly', name: 'Weekly', suffix: '/wk' },
+                        { id: 'monthly', name: 'Monthly', suffix: '/mo' },
+                        { id: 'quarterly', name: '3 Months', suffix: '/3mo' }
+                    ];
+
+                    cycles.forEach(cycle => {
+                        const priceKey = `price_${cycle.id}`;
+                        const price = plan[priceKey];
+
+                        if (price && price > 0) {
+                            const formattedPrice = parseFloat(price).toLocaleString('en-US');
+
+                            // Highlight Weekly as Popular (optional, kept from previous context logic if desired)
+                            let badgeHtml = '';
+                            let borderClass = 'clean-card';
+                            if (cycle.id === 'weekly') {
+                                badgeHtml = '<div class="badge bg-primary mb-3">Most Popular</div>';
+                                borderClass = 'clean-card border-primary';
+                            }
+
+                            const card = `
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="${borderClass} text-center d-flex flex-column shadow-sm">
+                                        ${badgeHtml}
+                                        <h4 class="fw-bold text-dark mb-4">${cycle.name}</h4>
+                                        <div class="mb-4">
+                                            <span class="display-6 fw-bold text-primary">${formattedPrice}</span>
+                                            <div class="text-muted small fw-bold">TZS ${cycle.suffix}</div>
+                                        </div>
+                                        <ul class="list-unstyled text-start mb-4 mx-auto text-muted small" style="max-width: 180px;">
+                                            <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> All Features</li>
+                                            <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> 24/7 Support</li>
+                                            <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> Cancel Anytime</li>
+                                        </ul>
+                                        <a href="{% url 'register' %}" class="btn btn-outline-clean w-100 mt-auto">Choose</a>
+                                    </div>
+                                </div>
+                             `;
+                            container.insertAdjacentHTML('beforeend', card);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching pricing:', error);
+                    document.getElementById('pricing-container').innerHTML = '<div class="col-12 text-center text-danger">Failed to load pricing.</div>';
+                });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            {% if '/credit/' in request.path %}Credit Sales
+            {% elif '/recent/' in request.path %}Recent Sales
+            {% else %}Sales History{% endif %}
+        </h1>
+        <a href="{% url 'sale_pos' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>New Sale (POS)
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Sales List</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" width="100%" cellspacing="0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Cashier</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Method</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales %}
+                        <tr>
+                            <td class="align-middle">DATA-{{ sale.id }}</td>
+                            <td class="align-middle">{{ sale.created_at|date:"M d, Y H:i" }}</td>
+                            <td class="align-middle">
+                                {% if sale.customer %}
+                                <span class="text-dark fw-bold">{{ sale.customer.name }}</span>
+                                {% else %}
+                                <span class="text-muted fst-italic">Walk-in Customer</span>
+                                {% endif %}
+                            </td>
+                            <td class="align-middle small">{{ sale.cashier.username|default:"-" }}</td>
+                            <td class="align-middle text-center">{{ sale.items.count }}</td>
+                            <td class="align-middle fw-bold text-end">
+                                {{ sale.total_amount|floatformat:2 }} TZS
+                            </td>
+                            <td class="align-middle text-center">
+                                {% if sale.payment_method == 'CREDIT' %}
+                                <span class="badge bg-danger">Credit</span>
+                                {% elif sale.payment_method == 'CASH' %}
+                                <span class="badge bg-success">Cash</span>
+                                {% elif sale.payment_method == 'MOBILE' %}
+                                <span class="badge bg-info">Mobile</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ sale.payment_method }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="align-middle text-center">
+                                <a href="{% url 'sale_invoice' sale.id %}" class="btn btn-sm btn-outline-primary"
+                                    title="View Invoice">
+                                    <i class="bi bi-file-earmark-text"></i> Invoice
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                No sales found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

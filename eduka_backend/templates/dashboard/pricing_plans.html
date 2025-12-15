@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-gray-900 display-6">Choose the Right Plan for Your Shop</h1>
+        <p class="text-muted lead">Simple, transparent pricing. Upgrade or downgrade anytime.</p>
+
+    </div>
+
+    <!-- Container for dynamic cards -->
+    <div class="row justify-content-center g-4" id="plansContainer">
+        <!-- Loading Spinner -->
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted mt-2">Loading plans...</p>
+        </div>
+    </div>
+
+    <div class="text-center mt-5 text-muted small">
+        <p>Prices are in Tanzanian Shillings (TZS). Need a custom plan? <a href="#">Contact Sales</a>.</p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        fetchPlans();
+    });
+
+    function fetchPlans() {
+        fetch('/api/pricing/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    // Filter for active plans first (important for Superusers who receive all plans)
+                    const activePlan = data.find(p => p.is_active) || data[0];
+                    renderPlanCycles(activePlan);
+                } else {
+                    document.getElementById('plansContainer').innerHTML = '<div class="text-center text-muted">No plans available.</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching plans:', error);
+                document.getElementById('plansContainer').innerHTML = '<div class="text-center text-danger">Failed to load pricing plans.</div>';
+            });
+    }
+
+    function renderPlanCycles(plan) {
+        const container = document.getElementById('plansContainer');
+        container.innerHTML = '';
+
+        const cycles = [
+            { id: 'daily', label: 'Daily', suffix: '/ day' },
+            { id: 'weekly', label: 'Weekly', suffix: '/ week' },
+            { id: 'monthly', label: 'Monthly', suffix: '/ month' },
+            { id: 'quarterly', label: '3 Months', suffix: '/ 3 mo' },
+            { id: 'biannually', label: '6 Months', suffix: '/ 6 mo' },
+            { id: 'yearly', label: 'Yearly', suffix: '/ year' }
+        ];
+
+        cycles.forEach(cycle => {
+            const price = plan[`price_${cycle.id}`];
+            if (price > 0) { // Only show if price is set
+                const formattedPrice = parseFloat(price).toLocaleString('en-US');
+
+                // Feature List Customization
+                // 1. 1 Shop + Daily Report
+                // 2. 3 Users + Stock Tracking
+                // 3. 500 Products + 24/7 Support
+
+                const cardHtml = `
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow-lg rounded-4 overflow-hidden text-center transition-hover">
+                        <div class="bg-primary bg-opacity-10 py-2">
+                             <h4 class="fw-bold text-primary mb-0 text-uppercase small spacing-wide">${cycle.label} Plan</h4>
+                        </div>
+                        
+                        <div class="card-body p-5 d-flex flex-column">
+                            <div class="pricing-display mb-4">
+                                 <h2 class="fw-bold text-dark mb-0">${formattedPrice} <small class="fs-6 text-muted">TZS</small></h2>
+                            </div>
+
+                            <ul class="list-unstyled text-start mb-5 mx-auto small text-muted">
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i> 
+                                    <span>Daily Report</span>
+                                </li>
+                                 <li class="mb-3 d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i> 
+                                    <span>Stock Tracking</span>
+                                </li>
+                                 <li class="mb-3 d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i> 
+                                    <span>24/7 Support</span>
+                                </li>
+                            </ul>
+
+                            <div class="mt-auto">
+                                 <form method="post" action="">
+                                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                    <input type="hidden" name="plan_id" value="${plan.id}">
+                                    <input type="hidden" name="cycle" value="${cycle.id.toUpperCase()}">
+                                    
+                                    <button type="submit" class="btn btn-primary fw-bold w-100 py-3 shadow-sm scale-on-hover">
+                                        Choose ${cycle.label}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+                container.innerHTML += cardHtml;
+            }
+        });
+    }
+</script>
+
+<style>
+    .transition-hover {
+        transition: transform 0.2s;
+    }
+
+    .transition-hover:hover {
+        transform: translateY(-5px);
+    }
+
+    .scale-on-hover:hover {
+        transform: scale(1.02);
+    }
+</style>
+{% endblock %}
