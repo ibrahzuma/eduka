@@ -365,7 +365,7 @@ def export_stock_pdf(request):
 
     # --- Header Section ---
     # Logo
-    logo_path = os.path.join(settings.BASE_DIR, 'eduka_backend', 'static', 'img', 'logo.png')
+    logo_path = os.path.join(settings.BASE_DIR, 'eduka_backend', 'static', 'img', 'logoeduka.png')
     if os.path.exists(logo_path):
         try:
             # Create a table for the header: Logo Left, Text Right (or Center)
@@ -534,7 +534,7 @@ def export_stock_excel(request):
     ws.title = "Stock List"
 
     # Logo
-    logo_path = os.path.join(settings.BASE_DIR, 'eduka_backend', 'static', 'img', 'logo.png')
+    logo_path = os.path.join(settings.BASE_DIR, 'eduka_backend', 'static', 'img', 'logoeduka.png')
     if os.path.exists(logo_path):
         try:
             img = ExcelImage(logo_path)
