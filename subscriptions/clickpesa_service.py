@@ -33,40 +33,37 @@ class ClickPesaService:
     def authenticate(self):
         """Exchange Client ID and API Key for an Access Token"""
         try:
+            # Endpoint: https://api.clickpesa.com/third-parties/generate-token
+            # Headers: api-key, client-id
+            # Method: POST
+            
             logger.info(f"Authenticating with ClickPesa... {self.auth_url}")
-            response = requests.post(
-                self.auth_url, 
-                json={ # Changed to json as per common modern standards, fallback to data if needed
-                    'grant_type': 'client_credentials',
-                    'client_id': self.client_id,
-                    'client_secret': self.api_key 
-                },
-                headers={'Content-Type': 'application/json'}
-            )
+            
+            headers = {
+                'api-key': self.api_key,
+                'client-id': self.client_id,
+                'Content-Type': 'application/json'
+            }
+            
+            response = requests.post(self.auth_url, headers=headers)
             
             if response.status_code == 200:
-                self.token = response.json().get('access_token')
-                logger.info("ClickPesa Auth Successful")
+                data = response.json()
+                if data.get('success'):
+                    # The token sometimes comes with 'Bearer ' prefix or might be raw
+                    token = data.get('token')
+                    if token.startswith('Bearer '):
+                        self.token = token.split(' ')[1]
+                    else:
+                        self.token = token
+                    logger.info("ClickPesa Auth Successful")
+                else:
+                    raise Exception(f"Auth Failed Response: {data}")
             else:
-                try: 
-                     # Try form-data if json failed
-                    response = requests.post(
-                        self.auth_url, 
-                        data={ 
-                            'grant_type': 'client_credentials',
-                            'client_id': self.client_id,
-                            'client_secret': self.api_key 
-                        }
-                    )
-                    if response.status_code == 200:
-                         self.token = response.json().get('access_token')
-                         return
+                 error_msg = f"Auth Failed: {response.status_code} - {response.text}"
+                 logger.error(error_msg)
+                 raise Exception(error_msg)
 
-                    error_msg = f"Auth Failed: {response.status_code} - {response.text}"
-                    logger.error(error_msg)
-                    raise Exception(error_msg)
-                except Exception as e:
-                     raise e
         except Exception as e:
             logger.error(f"ClickPesa Connection Error: {e}")
             raise e

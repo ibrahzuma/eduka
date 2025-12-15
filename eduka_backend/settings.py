@@ -171,7 +171,7 @@ SIMPLE_JWT = {
 CORS_ALLOW_ALL_ORIGINS = True
 
 # ClickPesa Configuration
-CLICKPESA_API_URL = os.getenv('CLICKPESA_API_URL', 'https://pay.clickpesa.com/api/')
-CLICKPESA_AUTH_URL = os.getenv('CLICKPESA_AUTH_URL', 'https://auth.clickpesa.com/oauth/token')
+CLICKPESA_API_URL = os.getenv('CLICKPESA_API_URL', 'https://api.clickpesa.com/collection/')
+CLICKPESA_AUTH_URL = os.getenv('CLICKPESA_AUTH_URL', 'https://api.clickpesa.com/third-parties/generate-token')
 CLICKPESA_CLIENT_ID = os.getenv('CLICKPESA_CLIENT_ID')
 CLICKPESA_API_KEY = os.getenv('CLICKPESA_API_KEY')
