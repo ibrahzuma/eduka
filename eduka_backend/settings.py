@@ -68,6 +68,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'subscriptions.middleware.SubscriptionMiddleware', # Enforce Payments
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'eduka_backend.urls'

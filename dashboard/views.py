@@ -83,9 +83,14 @@ class DashboardTemplateView(LoginRequiredMixin, TemplateView):
             # Branches Count (Single Shop)
             if shops.exists():
                 context['total_branches'] = shops.first().branches.count()
-            else:
-                context['total_branches'] = 0
                 
+        # Get Subscription Status
+        if shops.exists():
+            shop = shops.first()
+            if hasattr(shop, 'subscription'):
+                context['subscription'] = shop.subscription
+                context['days_left'] = (shop.subscription.end_date - timezone.now()).days
+        
         return context
 
 class SuperUserDashboardView(LoginRequiredMixin, TemplateView):
