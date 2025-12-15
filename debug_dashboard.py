@@ -39,10 +39,13 @@ try:
     print("Executing get_context_data()...")
     context = view.get_context_data()
     
+    print("Context generated successfully.")
+    print("--- TESTING TEMPLATE RENDERING ---")
+    from django.template.loader import render_to_string
+    rendered = render_to_string('dashboard/index.html', context, request=request)
+    print("Template rendered successfully (Length: {} chars)".format(len(rendered)))
+    
     print("--- SUCCESS ---")
-    print("Context keys generated:", context.keys())
-    print("Subscription Status:", context.get('subscription_status'))
-    print("Days Left:", context.get('days_left'))
     
 except Exception as e:
     print("\n--- CRASH DETECTED ---")
