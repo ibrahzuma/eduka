@@ -32,6 +32,7 @@ class DashboardTemplateView(LoginRequiredMixin, TemplateView):
     def calculate_stats(self, context, date_range):
         user = self.request.user
         today = timezone.now().date()
+        shops = Shop.objects.none() # Initialize to prevent UnboundLocalError for Super Admins
         
         # Determine start date and label based on range
         if date_range == 'week':
