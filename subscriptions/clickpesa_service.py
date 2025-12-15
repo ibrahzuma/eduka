@@ -106,12 +106,25 @@ class ClickPesaService:
 
     def check_status(self, order_reference):
         """Poll for payment status"""
-        url = f"{self.api_url}collection/payments" 
-        params = {"order_reference": order_reference}
+        # Docs: GET https://api.clickpesa.com/third-parties/payments/{orderReference}
+        # Note: api_url in settings might include 'collection/', so we should be careful.
+        # Best to construct from base domain if possible, or assume settings IS base.
+        
+        # Let's derive base URL from auth_url since that one is known to be correct now
+        base_url = self.auth_url.replace('/third-parties/generate-token', '')
+        url = f"{base_url}/third-parties/payments/{order_reference}"
         
         try:
             headers = self.get_headers()
-            response = requests.get(url, params=params, headers=headers)
-            return response.json()
-        except:
+            response = requests.get(url, headers=headers)
+            
+            if response.status_code == 200:
+                # Response is a LIST of transactions for this reference
+                data = response.json()
+                if isinstance(data, list) and len(data) > 0:
+                    return data[0] # Return the first transaction object
+                return data # specific case if it returns dict
+            return {}
+        except Exception as e:
+             logger.error(f"Check Status Error: {e}")
              return {}
