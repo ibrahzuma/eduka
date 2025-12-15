@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     # Third party
     'rest_framework',
     'corsheaders',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     # Local Apps
     'users',
     'shops',
