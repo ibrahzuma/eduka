@@ -5,6 +5,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import SubscriptionPlan, ShopSubscription, SubscriptionPayment
 from .clickpesa_service import ClickPesaService
 import uuid
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions
+from django.utils import timezone
 
 class InitiatePaymentView(LoginRequiredMixin, View):
     def post(self, request):
@@ -153,3 +157,30 @@ class CheckPaymentStatusView(LoginRequiredMixin, View):
             })
             
         return JsonResponse({'status': 'PENDING'})
+
+class SubscriptionStatusAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.is_superuser:
+            return Response({'is_valid': True, 'reason': 'superuser'})
+
+        # Check User's Shop
+        try:
+            shop = user.shops.first() # related_name='shops'
+            if shop:
+                # 1. Check DB Subscription
+                if hasattr(shop, 'subscription') and shop.subscription.is_valid():
+                    return Response({'is_valid': True, 'reason': 'active_subscription', 'status': shop.subscription.status})
+                
+                # 2. Check Trial (7 Days)
+                days_since_reg = (timezone.now() - shop.created_at).days
+                if days_since_reg < 7:
+                    return Response({'is_valid': True, 'reason': 'trial', 'days_left': 7 - days_since_reg})
+                
+                return Response({'is_valid': False, 'reason': 'expired'})
+        except Exception as e:
+            return Response({'is_valid': False, 'reason': 'error', 'details': str(e)})
+
+        return Response({'is_valid': False, 'reason': 'no_shop'})

@@ -193,6 +193,9 @@
                     </div>
                 </li>
                 {% endif %}
+                {% endif %}
+
+                {% if subscription_is_valid %}
                 <!-- Branches -->
                 <li class="nav-item">
                     <a href="/shops/branches/" class="nav-link {% if 'branches' in request.path %}active{% endif %}">
@@ -488,6 +491,7 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
                 <li class="nav-item mt-4">
                     <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
                         {% csrf_token %}
