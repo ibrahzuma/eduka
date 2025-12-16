@@ -21,3 +21,40 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         # Add shop ID if owner?
         return token
+
+class UserSerializer(serializers.ModelSerializer):
+    shop_name = serializers.SerializerMethodField()
+    formatted_date = serializers.SerializerMethodField()
+    initial = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    role_display = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'username', 'email', 'phone', 'role', 'role_display', 
+            'is_active', 'is_superuser', 'date_joined', 
+            'shop_name', 'formatted_date', 'initial', 'status_display'
+        )
+
+    def get_shop_name(self, obj):
+        # Assuming Owner -> Shop relationship
+        if hasattr(obj, 'shops') and obj.shops.exists():
+            return [shop.name for shop in obj.shops.all()]
+        return []
+
+    def get_formatted_date(self, obj):
+        return obj.date_joined.strftime("%b %d, %Y")
+
+    def get_initial(self, obj):
+        return obj.username[0].upper() if obj.username else "?"
+
+    def get_status_display(self, obj):
+        if obj.is_active: return "Active"
+        return "Banned"
+
+    def get_role_display(self, obj):
+        if obj.is_superuser: return "Super Admin"
+        if obj.role == 'OWNER': return "Owner"
+        if obj.role == 'EMPLOYEE': return "Employee"
+        return obj.role.title()

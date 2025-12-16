@@ -1,5 +1,9 @@
 from rest_framework import generics, permissions
-from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
+from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer, UserSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.db.models import Q
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import CustomUser
 
@@ -10,3 +14,57 @@ class RegisterView(generics.CreateAPIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+class UserManagementAPIView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        if not request.user.is_superuser:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        
+        users = CustomUser.objects.all().order_by('-date_joined')
+        
+        # Search
+        q = request.GET.get('q')
+        if q:
+            users = users.filter(Q(username__icontains=q) | Q(email__icontains=q) | Q(phone__icontains=q))
+            
+        # Filter
+        role = request.GET.get('role')
+        if role:
+            users = users.filter(role=role)
+            
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+class UserActionAPIView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        if not request.user.is_superuser:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+            
+        action = request.data.get('action')
+        user_id = request.data.get('user_id')
+        
+        try:
+            target_user = CustomUser.objects.get(id=user_id)
+            if target_user.is_superuser:
+                return Response({'error': 'Cannot modify Super Admin'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if action == 'ban':
+                target_user.is_active = False
+                target_user.save()
+            elif action == 'activate':
+                target_user.is_active = True
+                target_user.save()
+            elif action == 'delete':
+                target_user.delete()
+                return Response({'status': 'deleted'})
+            else:
+                return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            return Response({'status': 'success', 'is_active': target_user.is_active})
+            
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
