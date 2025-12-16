@@ -28,6 +28,7 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
@@ -174,7 +175,8 @@ SIMPLE_JWT = {
 }
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS Configuration
+CORS_ALLOW_ALL_ORIGINS = False # restricted for production security
 
 # ClickPesa Configuration
 CLICKPESA_API_URL = os.getenv('CLICKPESA_API_URL', 'https://api.clickpesa.com/')

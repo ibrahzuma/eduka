@@ -26,7 +26,9 @@ class SubscriptionMiddleware:
             '/static/',                  # Assets
             '/media/',                   # Media
             '/accounts/',                # Auth (Login/Logout/Password Reset)
-            '/api/',                     # APIs (Optional: restrict later if needed)
+            '/api/auth/',                # login/register is public
+            '/api/pricing/',             # pricing is public
+            '/api/donations/',           # donations usually public
         ]
         
         # Check if current path is allowed
