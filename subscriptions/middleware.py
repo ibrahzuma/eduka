@@ -16,41 +16,44 @@ class SubscriptionMiddleware:
         if request.user.is_superuser:
             return self.get_response(request)
 
-        # Explicitly Allowed Paths (Dashboard, Payment, Logout, Static)
+        # Explicitly Allowed Paths (Whitelist)
+        # We allow the dashboard so users can see the 'Expired' banner and navigate to pricing
         allowed_paths = [
-            reverse('dashboard:home'),
-            reverse('pricing_plans'), 
-            '/subscriptions/', # Allow all subscription/payment URLs
-            '/admin/',
-            '/static/',
-            '/media/',
-            '/api/', # Allow API for now, or secure it separately
-            '/accounts/logout/'
+            reverse('dashboard'),        # Main Dashboard (Banner is here)
+            reverse('shop_pricing'),     # Pricing Page
+            '/subscriptions/',           # Payment processing
+            '/admin/',                   # Admin panel
+            '/static/',                  # Assets
+            '/media/',                   # Media
+            '/accounts/',                # Auth (Login/Logout/Password Reset)
+            '/api/',                     # APIs (Optional: restrict later if needed)
         ]
         
+        # Check if current path is allowed
         if any(request.path.startswith(path) for path in allowed_paths):
             return self.get_response(request)
 
         # Check User's Shop Subscription
-        # Assuming user has one shop for now or checking the first one
-        # Ideally, we check the shop in the session or context
         try:
             shop = Shop.objects.filter(owner=request.user).first()
             if shop:
-                # Ensure subscription exists (Signal should have created it, but just in case)
-                if not hasattr(shop, 'subscription'):
-                    # Fallback: Redirect to pricing or create trial?
-                    return redirect('pricing_plans')
-
-                sub = shop.subscription
+                # 1. Check if DB Subscription exists and is valid
+                if hasattr(shop, 'subscription') and shop.subscription.is_valid():
+                    return self.get_response(request)
                 
-                # Check Validity
-                if not sub.is_valid():
-                     # Expired! Redirect to Pricing
-                     return redirect('pricing_plans')
-                     
-        except Exception as e:
-            # Log error
+                # 2. Fallback: Registration Date Trial Logic
+                # If no valid subscription, check if they are within 7 days of registration
+                days_since_reg = (timezone.now() - shop.created_at).days
+                if days_since_reg < 7:
+                    # Grant Trial Access
+                    return self.get_response(request)
+                
+                # 3. If neither valid sub nor trial -> BLOCK
+                # Redirect to pricing page
+                return redirect('shop_pricing')
+                
+        except Exception:
+            # Safer to allow access if error occurs to avoid total lockout during bugs
             pass
 
         return self.get_response(request)
