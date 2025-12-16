@@ -88,7 +88,7 @@
 
 <!-- Subscription Banner -->
 <!-- Subscription Banner -->
-{% if days_left <= 7 or subscription_status=='EXPIRED' or not has_subscription %} <div class="row mb-4">
+{% if days_left <= 7 or subscription_status == 'EXPIRED' or not has_subscription %} <div class="row mb-4">
     <div class="col-12">
         <div class="card bg-danger text-white border-0 shadow-sm"
             style="background: linear-gradient(45deg, #ff357a, #fff172);">
