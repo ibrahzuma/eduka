@@ -641,39 +641,47 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        function fetchNotifications(onlyCount = true) {
-            fetch('/api/notifications/list/')
-                .then(response => response.json())
-                .then(data => {
-                    // Update Badge
-                    if (data.unread_count > 0) {
-                        badge.innerText = data.unread_count > 9 ? '9+' : data.unread_count;
-                        badge.style.display = 'inline-block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
+        document.addEventListener("DOMContentLoaded", function () {
+            const badge = document.getElementById('notification-badge');
+            const list = document.getElementById('notification-list');
+            const bell = document.getElementById('alertsDropdown');
 
-                    // Update List if needed (or if already open, but usually we fetch on click)
-                    if (!onlyCount) {
-                        renderList(data.notifications);
-                    }
-                })
-                .catch(error => console.error('Error fetching notifications:', error));
-        }
+            // Safety check
+            if (!badge || !list || !bell) return;
 
-        function renderList(notifications) {
-            if (notifications.length === 0) {
-                list.innerHTML = '<div class="text-center py-4 text-muted small">No new alerts</div>';
-                return;
+            function fetchNotifications(onlyCount = true) {
+                fetch('/api/notifications/list/')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update Badge
+                        if (data.unread_count > 0) {
+                            badge.innerText = data.unread_count > 9 ? '9+' : data.unread_count;
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+
+                        // Update List if needed
+                        if (!onlyCount) {
+                            renderList(data.notifications);
+                        }
+                    })
+                    .catch(error => console.error('Error fetching notifications:', error));
             }
 
-            let html = '';
-            notifications.forEach(n => {
-                const bgClass = n.is_read ? 'bg-white' : 'bg-light'; // Unread items darker
-                const icon = n.link ? 'bi-link-45deg' : 'bi-info-circle'; // Simple icon logic
-                const color = n.is_read ? 'text-secondary' : 'text-primary';
+            function renderList(notifications) {
+                if (notifications.length === 0) {
+                    list.innerHTML = '<div class="text-center py-4 text-muted small">No new alerts</div>';
+                    return;
+                }
 
-                html += `
+                let html = '';
+                notifications.forEach(n => {
+                    const bgClass = n.is_read ? 'bg-white' : 'bg-light';
+                    const icon = n.link ? 'bi-link-45deg' : 'bi-info-circle';
+                    const color = n.is_read ? 'text-secondary' : 'text-primary';
+
+                    html += `
                         <a class="dropdown-item d-flex align-items-center py-3 border-bottom ${bgClass}" href="${n.link || '#'}">
                             <div class="me-3">
                                 <div class="icon-circle bg-primary bg-opacity-10 ${color}">
@@ -687,45 +695,39 @@
                             </div>
                         </a>
                     `;
-            });
-            list.innerHTML = html;
-        }
-
-        function markAsRead() {
-            // Call API to mark as read
-            fetch('/api/notifications/read/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({}) // Mark all as read for now
-            }).then(() => {
-                // Update badge locally
-                badge.style.display = 'none';
-            });
-        }
-
-        // Initial Fetch
-        fetchNotifications(true);
-
-        // Poll every 30 seconds
-        setInterval(() => fetchNotifications(true), 30000);
-
-        // On Click
-        bell.addEventListener('show.bs.dropdown', function () {
-            // Fetch full list
-            fetch('/api/notifications/list/')
-                .then(response => response.json())
-                .then(data => {
-                    renderList(data.notifications);
-                    // Mark as read after a short delay so user sees "unread" state briefly? 
-                    // Or immediately. User request: "once view reduce the number"
-                    markAsRead();
                 });
+                list.innerHTML = html;
+            }
+
+            function markAsRead() {
+                fetch('/api/notifications/read/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                }).then(() => {
+                    badge.style.display = 'none';
+                });
+            }
+
+            // Initial Fetch
+            fetchNotifications(true);
+
+            // Poll every 30s
+            setInterval(() => fetchNotifications(true), 30000);
+
+            // On Click
+            bell.addEventListener('show.bs.dropdown', function () {
+                fetch('/api/notifications/list/')
+                    .then(response => response.json())
+                    .then(data => {
+                        renderList(data.notifications);
+                        markAsRead();
+                    });
+            });
         });
+</body >
 
-    </script>
-</body>
-
-</html>
+</html >
