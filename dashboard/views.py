@@ -504,6 +504,27 @@ class SuperUserUserListView(LoginRequiredMixin, TemplateView):
                 
         return redirect('superuser_user_list')
 
+class SuperUserUserDeleteView(LoginRequiredMixin, DeleteView):
+    model = get_user_model()
+    template_name = 'dashboard/confirm_delete.html'
+    success_url = reverse_lazy('superuser_user_list')
+    context_object_name = 'object'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        if user.is_superuser:
+             from django.contrib import messages
+             messages.error(request, "Cannot delete Super Admin accounts.")
+             return redirect('superuser_user_list')
+        return super().delete(request, *args, **kwargs)
+
+
 class ShopPricingView(LoginRequiredMixin, TemplateView):
     template_name = "dashboard/pricing_plans.html"
 

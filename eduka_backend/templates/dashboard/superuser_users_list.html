@@ -120,6 +120,13 @@
                                 </button>
                                 {% endif %}
                             </form>
+
+                            <a href="{% url 'superuser_user_delete' user.pk %}" class="btn btn-sm btn-outline-dark ms-1"
+                                title="Permanently Delete User"
+                                onclick="return confirm('WARNING: This will permanently delete the user and all their data (shops, sales, etc). This cannot be undone. Proceed?');">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            {% endif %}
                             {% endif %}
                         </td>
                     </tr>

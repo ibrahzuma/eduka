@@ -22,6 +22,7 @@ urlpatterns = [
     path('dashboard/superuser/settings/', views.SuperUserGlobalSettingsView.as_view(), name='superuser_settings'),
     path('dashboard/superuser/broadcast/', views.SuperUserBroadcastView.as_view(), name='superuser_broadcast'),
     path('dashboard/superuser/users/', views.SuperUserUserListView.as_view(), name='superuser_user_list'),
+    path('dashboard/superuser/users/<int:pk>/delete/', views.SuperUserUserDeleteView.as_view(), name='superuser_user_delete'),
     
     path('dashboard/pricing/', views.ShopPricingView.as_view(), name='shop_pricing'),
     
