@@ -456,21 +456,9 @@
                         </div>
                     </div>
 
-                <li class="nav-item">
-                    <a href="{% url 'shop_pricing' %}"
-                        class="nav-link {% if request.resolver_match.url_name == 'shop_pricing' %}active{% endif %}">
-                        <i class="bi bi-credit-card me-2"></i> Subscription
-                    </a>
-                </li>
 
-                <li class="nav-item">
-                    <a href="{% url 'settings' %}"
-                        class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
-                        <i class="bi bi-gear me-2"></i> Settings
-                    </a>
-                </li>
 
-                <!-- Returns Dropdown -->
+                    <!-- Returns Dropdown -->
                 <li class="nav-item">
                     <a class="nav-link {% if 'return_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseReturns"
@@ -491,6 +479,19 @@
                     </div>
                 </li>
                 {% endif %}
+                <li class="nav-item">
+                    <a href="{% url 'shop_pricing' %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'shop_pricing' %}active{% endif %}">
+                        <i class="bi bi-credit-card me-2"></i> Subscription
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'settings' %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                        <i class="bi bi-gear me-2"></i> Settings
+                    </a>
+                </li>
                 <li class="nav-item mt-4">
                     <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
                         {% csrf_token %}
