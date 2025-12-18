@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from shops.models import Branch # Added import
 
 User = get_user_model()
 from .models import Role
@@ -86,6 +87,9 @@ class UserRegistrationForm(forms.ModelForm):
             user.save()
         return user
 
+class EmployeeForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
+    assigned_role = forms.ModelChoiceField(queryset=Role.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}), empty_label="Select Role")
     branch = forms.ModelChoiceField(queryset=Branch.objects.none(), required=False, widget=forms.Select(attrs={'class': 'form-select'}), empty_label="Select Branch")
 
     class Meta:
