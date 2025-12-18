@@ -17,35 +17,35 @@ def verify_form_fields():
     fields = form.fields.keys()
     print(f"Fields found: {list(fields)}")
     
-    expected_fields = ['first_name', 'last_name', 'username', 'email', 'phone', 'assigned_role', 'branch', 'password']
+    expected_fields = ['username', 'email', 'phone', 'assigned_role', 'branch', 'password']
     for field in expected_fields:
         if field not in fields:
             print(f"FAILED: Missing field '{field}'")
             return
+    if 'first_name' in fields or 'last_name' in fields:
+        print("FAILED: first_name or last_name should NOT be present.")
+        return
     print("SUCCESS: All expected fields are present.")
 
     print("\n>>> Verifying Save...")
     role, _ = Role.objects.get_or_create(name='TestRole')
     data = {
-        'first_name': 'Test',
-        'last_name': 'Employee',
-        'username': 'testuser_login',
+        'username': 'testuser_simple',
         'email': 'test@example.com',
         'phone': '1234567890',
         'assigned_role': role.id,
         'password': 'password123'
     }
     
-    if User.objects.filter(username='testuser_login').exists():
-         User.objects.filter(username='testuser_login').delete()
+    if User.objects.filter(username='testuser_simple').exists():
+         User.objects.filter(username='testuser_simple').delete()
          
     form = EmployeeForm(data=data)
     if form.is_valid():
         user = form.save()
-        print(f"User Created: {user.username} (Name: {user.get_full_name()})")
-        assert user.first_name == 'Test'
-        assert user.last_name == 'Employee'
-        assert user.username == 'testuser_login'
+        print(f"User Created: {user.username}")
+        assert user.username == 'testuser_simple'
+        # assert user.first_name == '' # Should be empty
         assert user.check_password('password123')
         print("SUCCESS: User saved correctly.")
         user.delete()

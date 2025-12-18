@@ -88,18 +88,14 @@ class UserRegistrationForm(forms.ModelForm):
         return user
 
 class EmployeeForm(forms.ModelForm):
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}))
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
     assigned_role = forms.ModelChoiceField(queryset=Role.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}), empty_label="Select Role")
     branch = forms.ModelChoiceField(queryset=Branch.objects.none(), required=False, widget=forms.Select(attrs={'class': 'form-select'}), empty_label="Select Branch")
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'phone', 'assigned_role', 'branch', 'password']
+        fields = ['username', 'email', 'phone', 'assigned_role', 'branch', 'password']
         labels = {
-            'first_name': 'First Name',
-            'last_name': 'Last Name',
             'username': 'Username (for Login)',
             'email': 'Email Address',
             'phone': 'Phone Number',
@@ -128,17 +124,13 @@ class EmployeeForm(forms.ModelForm):
         return user
 
 class EmployeeEditForm(forms.ModelForm):
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}))
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}))
     password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'New Password (leave blank to keep current)'}))
     branch = forms.ModelChoiceField(queryset=Branch.objects.none(), required=False, widget=forms.Select(attrs={'class': 'form-select'}), empty_label="Select Branch")
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'phone', 'assigned_role', 'branch', 'password']
+        fields = ['username', 'email', 'phone', 'assigned_role', 'branch', 'password']
         labels = {
-            'first_name': 'First Name',
-            'last_name': 'Last Name',
             'username': 'Username (for Login)',
             'email': 'Email Address',
             'phone': 'Phone Number',
