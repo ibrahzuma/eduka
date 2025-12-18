@@ -520,19 +520,23 @@
                     </div>
                 </li>
                 {% endif %}
+                {% if user.role != 'EMPLOYEE' %}
                 <li class="nav-item">
                     <a href="{% url 'shop_pricing' %}"
                         class="nav-link {% if request.resolver_match.url_name == 'shop_pricing' %}active{% endif %}">
                         <i class="bi bi-credit-card me-2"></i> Subscription
                     </a>
                 </li>
+                {% endif %}
 
+                {% if user.role != 'EMPLOYEE' %}
                 <li class="nav-item">
                     <a href="{% url 'settings' %}"
                         class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
                         <i class="bi bi-gear me-2"></i> Settings
                     </a>
                 </li>
+                {% endif %}
                 <li class="nav-item mt-4">
                     <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
                         {% csrf_token %}
@@ -798,5 +802,6 @@
 
         });
 </body >
+</html >
 
 </html >
