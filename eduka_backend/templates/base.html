@@ -193,14 +193,12 @@
             <hr class="sidebar-divider my-0 bg-white opacity-25">
             <ul class="nav flex-column">
                 <!-- Dashboard -->
-                {% if user|can_view:'dashboard' %}
                 <li class="nav-item">
                     <a href="{% url 'dashboard' %}"
                         class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                         <i class="bi bi-speedometer2 me-2"></i> Dashboard
                     </a>
                 </li>
-                {% endif %}
                 {% if user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'superuser_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
