@@ -12,6 +12,10 @@ class CustomUser(AbstractUser):
     phone = models.CharField(max_length=20, null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     
+    # Employee Fields
+    shop = models.ForeignKey('shops.Shop', on_delete=models.SET_NULL, null=True, blank=True, related_name='employees')
+    branch = models.ForeignKey('shops.Branch', on_delete=models.SET_NULL, null=True, blank=True, related_name='employees')
+    
     def save(self, *args, **kwargs):
         if self.is_superuser:
             self.role = self.Role.SUPER_ADMIN

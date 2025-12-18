@@ -114,24 +114,73 @@ from .forms import EmployeeForm
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+from django.shortcuts import get_object_or_404
+from .forms import EmployeeForm, EmployeeEditForm
+
 class EmployeeListView(LoginRequiredMixin, View):
     def get(self, request):
-        # Filter users who are marked as employees
-        employees = User.objects.filter(role='EMPLOYEE').order_by('-date_joined')
+        # Filter users who are marked as employees and belong to the current user's shop
+        shop = request.user.shops.first() # Assuming one shop per owner for now
+        if shop:
+            employees = User.objects.filter(role='EMPLOYEE', shop=shop).order_by('-date_joined')
+        else:
+            employees = []
         return render(request, 'users/employee_list.html', {'employees': employees})
 
 class EmployeeCreateView(LoginRequiredMixin, View):
     def get(self, request):
-        form = EmployeeForm()
+        shop = request.user.shops.first()
+        form = EmployeeForm(shop=shop)
         return render(request, 'users/employee_create.html', {'form': form})
 
     def post(self, request):
-        form = EmployeeForm(request.POST)
+        shop = request.user.shops.first()
+        form = EmployeeForm(request.POST, shop=shop)
         if form.is_valid():
-            form.save()
+            employee = form.save(commit=False)
+            employee.shop = shop
+            if form.cleaned_data.get('branch'):
+                employee.branch = form.cleaned_data['branch']
+            employee.save()
             messages.success(request, 'Employee added successfully!', extra_tags='success')
             return redirect('employee_list')
         return render(request, 'users/employee_create.html', {'form': form})
+
+class EmployeeUpdateView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        employee = get_object_or_404(User, pk=pk, shop=request.user.shops.first())
+        shop = request.user.shops.first()
+        form = EmployeeEditForm(instance=employee, shop=shop)
+        return render(request, 'users/employee_edit.html', {'form': form, 'employee': employee})
+
+    def post(self, request, pk):
+        employee = get_object_or_404(User, pk=pk, shop=request.user.shops.first())
+        shop = request.user.shops.first()
+        form = EmployeeEditForm(request.POST, instance=employee, shop=shop)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Employee updated successfully!', extra_tags='success')
+            return redirect('employee_list')
+        return render(request, 'users/employee_edit.html', {'form': form, 'employee': employee})
+
+class EmployeeSuspendView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        employee = get_object_or_404(User, pk=pk, shop=request.user.shops.first())
+        if employee.is_active:
+            employee.is_active = False
+            messages.warning(request, f'Employee {employee.username} has been suspended.')
+        else:
+            employee.is_active = True
+            messages.success(request, f'Employee {employee.username} has been reactivated.')
+        employee.save()
+        return redirect('employee_list')
+
+class EmployeeDeleteView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        employee = get_object_or_404(User, pk=pk, shop=request.user.shops.first())
+        employee.delete()
+        messages.error(request, 'Employee has been permanently deleted.')
+        return redirect('employee_list')
 
 from .forms import ProfileForm
 

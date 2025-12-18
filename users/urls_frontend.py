@@ -10,8 +10,10 @@ urlpatterns = [
     path('roles/create/', views_frontend.RoleCreateView.as_view(), name='role_create'),
     path('employees/', views_frontend.EmployeeListView.as_view(), name='employee_list'),
     path('employees/create/', views_frontend.EmployeeCreateView.as_view(), name='employee_create'),
+    path('employees/<int:pk>/edit/', views_frontend.EmployeeUpdateView.as_view(), name='employee_edit'),
+    path('employees/<int:pk>/suspend/', views_frontend.EmployeeSuspendView.as_view(), name='employee_suspend'),
+    path('employees/<int:pk>/delete/', views_frontend.EmployeeDeleteView.as_view(), name='employee_delete'),
     path('profile/', views_frontend.ProfileView.as_view(), name='profile'),
-    # ... other API urls ...
 ]
 
 

@@ -71,16 +71,39 @@ class DashboardTemplateView(LoginRequiredMixin, TemplateView):
             context['recent_sales'] = Sale.objects.order_by('-created_at')[:5]
         else:
             context['type'] = 'Tenant'
-            shops = Shop.objects.filter(owner=user)
+            
+            # Identify Shops
+            if getattr(user, 'role', None) == 'EMPLOYEE':
+                # Employee belongs to a shop
+                shops = Shop.objects.filter(id=user.shop_id) if user.shop_id else Shop.objects.none()
+            else:
+                # Owner owns shops
+                shops = Shop.objects.filter(owner=user)
+
             context['total_shops'] = shops.count()
             
             # Tenant Sales
             sales = Sale.objects.filter(shop__in=shops)
+            
+            # If Employee, further filter by cashier
+            if getattr(user, 'role', None) == 'EMPLOYEE':
+                # "Show his staff" -> interpreted as "Show his own stats" based on common requirements
+                # or if manager, show all? User said "only show his staff" -> likely "only show his stuff" or "sales made by him"
+                sales = sales.filter(cashier=user)
+
             context['total_sales_volume'] = sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
             context['sales_period'] = sales.filter(created_at__date__gte=start_date).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
             
-            # Tenant Purchases
-            purchases = PurchaseOrder.objects.filter(shop__in=shops)
+            # Tenant Purchases (Generally employees don't see purchases unless role allows, but we'll filter similarly or hide)
+            # For now, let's assume employees shouldn't see sensitive purchase data or just filter by shop
+            # If we strictly follow "only show his staff" (stuff), maybe hide purchases? 
+            # Letting it show shop purchases for now but could be restricted.
+            if getattr(user, 'role', None) == 'EMPLOYEE':
+                 purchases = PurchaseOrder.objects.none() # Hide purchases for basic employees? Or filter by 'created_by'? 
+                 # Let's hide to be safe/strict on "his stuff"
+            else:
+                purchases = PurchaseOrder.objects.filter(shop__in=shops)
+
             context['total_purchases_volume'] = purchases.aggregate(Sum('total_cost'))['total_cost__sum'] or 0
             context['purchases_period'] = purchases.filter(created_at__date__gte=start_date).aggregate(Sum('total_cost'))['total_cost__sum'] or 0
             
@@ -90,7 +113,6 @@ class DashboardTemplateView(LoginRequiredMixin, TemplateView):
             # Branches Count (Single Shop)
             if shops.exists():
                 context['total_branches'] = shops.first().branches.count()
-                
         
         # Get Subscription Status (Safe Mode)
         context['days_left'] = 0 # Default to 0 (expired/immediate action)

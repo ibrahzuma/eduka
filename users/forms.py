@@ -86,18 +86,17 @@ class UserRegistrationForm(forms.ModelForm):
             user.save()
         return user
 
-class EmployeeForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
-    assigned_role = forms.ModelChoiceField(queryset=Role.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}), empty_label="Select Role")
-    
+    branch = forms.ModelChoiceField(queryset=Branch.objects.none(), required=False, widget=forms.Select(attrs={'class': 'form-select'}), empty_label="Select Branch")
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'phone', 'assigned_role', 'password']
+        fields = ['username', 'email', 'phone', 'assigned_role', 'branch', 'password']
         labels = {
             'username': 'Employee Name',
             'email': 'Email Address',
             'phone': 'Phone Number',
             'assigned_role': 'Role',
+            'branch': 'Branch',
         }
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
@@ -105,11 +104,52 @@ class EmployeeForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        shop = kwargs.pop('shop', None)
+        super().__init__(*args, **kwargs)
+        if shop:
+            self.fields['branch'].queryset = shop.branches.all()
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
         # Always set as Employee type if created through this form
         user.role = 'EMPLOYEE'
+        if commit:
+            user.save()
+        return user
+
+class EmployeeEditForm(forms.ModelForm):
+    password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'New Password (leave blank to keep current)'}))
+    branch = forms.ModelChoiceField(queryset=Branch.objects.none(), required=False, widget=forms.Select(attrs={'class': 'form-select'}), empty_label="Select Branch")
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'phone', 'assigned_role', 'branch', 'password']
+        labels = {
+            'username': 'Employee Name',
+            'email': 'Email Address',
+            'phone': 'Phone Number',
+            'assigned_role': 'Role',
+            'branch': 'Branch',
+        }
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email (Optional)'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+            'assigned_role': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        shop = kwargs.pop('shop', None)
+        super().__init__(*args, **kwargs)
+        if shop:
+            self.fields['branch'].queryset = shop.branches.all()
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if self.cleaned_data.get("password"):
+            user.set_password(self.cleaned_data["password"])
         if commit:
             user.save()
         return user
