@@ -44,18 +44,19 @@ def test_authentication():
         return
 
     # 2. Test Authenticate (Simulating Login View)
-    print("\n>>> Testing authenticate()...")
-    # Case A: Correct Credentials
-    user_auth = authenticate(username=username, password=password)
+    print("\n>>> Testing authenticate() with EMAIL...")
+    # Case A: Correct Credentials via Email
+    user_auth = authenticate(username='auth@test.com', password=password)
     if user_auth:
-        print("SUCCESS: Authentication worked with valid credentials.")
+        print("SUCCESS: Authentication worked with EMAIL.")
     else:
-        print("FAILED: Authentication returned None with valid credentials.")
+        print("FAILED: Authentication with EMAIL returned None.")
         # Debugging why
         try:
             u_debug = User.objects.get(username=username)
             print(f"Debug - Check Password: {u_debug.check_password(password)}")
             print(f"Debug - Is Active: {u_debug.is_active}")
+            print(f"Debug - Email: {u_debug.email}")
         except User.DoesNotExist:
             print("Debug - User not found in DB!")
 

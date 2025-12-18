@@ -10,8 +10,8 @@ class PhoneBackend(ModelBackend):
             username = kwargs.get(User.USERNAME_FIELD)
         
         try:
-            # Check against username OR phone
-            user = User.objects.get(Q(username=username) | Q(phone=username))
+            # Check against username OR phone OR email
+            user = User.objects.get(Q(username=username) | Q(phone=username) | Q(email=username))
         except User.DoesNotExist:
             return None
         else:
