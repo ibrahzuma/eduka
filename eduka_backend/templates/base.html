@@ -238,17 +238,24 @@
 
                 {% if subscription_is_valid %}
                 <!-- Branches -->
-                {% if user|can_view:'branches' %}
+                <!-- Branches -->
                 <li class="nav-item">
+                    {% if user|can_view:'branches' %}
                     <a href="/shops/branches/" class="nav-link {% if 'branches' in request.path %}active{% endif %}">
                         <i class="bi bi-shop me-2"></i> Branches
                     </a>
+                    {% else %}
+                    <a href="#" class="nav-link text-muted" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-shop me-2"></i> Branches
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
 
                 <!-- Products Dropdown -->
-                {% if user|can_view:'products' %}
+                <!-- Products Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'products' %}
                     <a class="nav-link {% if 'product_' in request.resolver_match.url_name or 'category_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseProducts"
                         aria-expanded="{% if 'product_' in request.resolver_match.url_name or 'category_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -271,12 +278,18 @@
                                 href="{% url 'category_list' %}">Categories</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-box me-2"></i> Products
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
 
                 <!-- Services Dropdown -->
-                {% if user|can_view:'services' %}
+                <!-- Services Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'services' %}
                     <a class="nav-link {% if 'service_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseServices"
                         aria-expanded="{% if 'service_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -294,12 +307,18 @@
                                 href="{% url 'service_create' %}">Create Service</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-tools me-2"></i> Services
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
 
                 <!-- Inventory Dropdown -->
-                {% if user|can_view:'inventory' %}
+                <!-- Inventory Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'inventory' %}
                     <a class="nav-link {% if 'stock_' in request.resolver_match.url_name or 'inventory_' in request.resolver_match.url_name or 'abc_' in request.resolver_match.url_name or 'profitability_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseInventory"
                         aria-expanded="{% if 'stock_' in request.resolver_match.url_name or 'inventory_' in request.resolver_match.url_name or 'abc_' in request.resolver_match.url_name or 'profitability_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -327,12 +346,18 @@
                                 href="{% url 'profitability_report' %}">Profitability Report</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-boxes me-2"></i> Inventory
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
 
                 <!-- Sales Dropdown -->
-                {% if user|can_view:'sales' %}
+                <!-- Sales Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'sales' %}
                     <a class="nav-link {% if 'sale_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseSales"
                         aria-expanded="{% if 'sale_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -354,12 +379,18 @@
                                 href="{% url 'sale_recent' %}">Recent Sales</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-receipt me-2"></i> Sales
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
 
                 <!-- Purchases Dropdown -->
-                {% if user|can_view:'purchases' %}
+                <!-- Purchases Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'purchases' %}
                     <a class="nav-link {% if 'purchase_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapsePurchases"
                         aria-expanded="{% if 'purchase_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -382,12 +413,18 @@
                                 href="{% url 'supplier_list' %}">Manage Suppliers</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-bag me-2"></i> Purchases
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
 
                 <!-- Finance Dropdown -->
-                {% if user|can_view:'finance' %}
+                <!-- Finance Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'finance' %}
                     <a class="nav-link {% if 'expense_' in request.resolver_match.url_name or 'income_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseFinance"
                         aria-expanded="{% if 'expense_' in request.resolver_match.url_name or 'income_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -415,12 +452,18 @@
                                 href="{% url 'income_create' %}">Record Income</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-wallet2 me-2"></i> Finance
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
 
                 <!-- Clients Dropdown -->
-                {% if user|can_view:'clients' %}
+                <!-- Clients Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'clients' %}
                     <a class="nav-link {% if 'client_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseClients"
                         aria-expanded="{% if 'client_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -440,12 +483,18 @@
                                 href="{% url 'client_import' %}">Import Clients</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-people me-2"></i> Clients
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
 
                 <!-- Reports Dropdown -->
-                {% if user|can_view:'reports' %}
+                <!-- Reports Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'reports' %}
                     <a class="nav-link {% if 'report_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseReports"
                         aria-expanded="{% if 'report_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -473,11 +522,17 @@
                                 href="{% url 'report_cashflow' %}">Cashflow</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-bar-chart me-2"></i> Reports
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
                 <!-- User Management Dropdown -->
-                {% if user|can_view:'users' %}
+                <!-- User Management Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'users' %}
                     <a class="nav-link {% if 'role_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseUserMgmt"
                         aria-expanded="{% if 'role_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -495,12 +550,18 @@
                                 href="{% url 'role_create' %}">Create Role</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-person-badge me-2"></i> Role Management
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
 
                 <!-- Employees Dropdown -->
-                {% if user|can_view:'users' %}
+                <!-- Employees Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'users' %}
                     <a class="nav-link {% if 'employee_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseEmployees"
                         aria-expanded="{% if 'employee_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -518,13 +579,19 @@
                                 href="{% url 'employee_create' %}">Create Employee</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-people-fill me-2"></i> Employees
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
                     {% endif %}
+                </li>
 
 
 
-                    <!-- Returns Dropdown -->
-                    {% if user|can_view:'returns' %}
+                <!-- Returns Dropdown -->
                 <li class="nav-item">
+                    {% if user|can_view:'returns' %}
                     <a class="nav-link {% if 'return_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseReturns"
                         aria-expanded="{% if 'return_' in request.resolver_match.url_name %}true{% else %}false{% endif %}"
@@ -542,8 +609,13 @@
                                 href="{% url 'return_outwards' %}">Return Outwards</a>
                         </div>
                     </div>
+                    {% else %}
+                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
+                        <i class="bi bi-arrow-return-left me-2"></i> Returns
+                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
+                    </a>
+                    {% endif %}
                 </li>
-                {% endif %}
                 {% endif %}
                 {% if user.role != 'EMPLOYEE' %}
                 <li class="nav-item">

@@ -21,7 +21,9 @@ def test_dashboard_access():
     branch, _ = Branch.objects.get_or_create(shop=shop, name='Debug Branch')
     
     # Create Role
-    role, _ = Role.objects.get_or_create(name='DebugRole', defaults={'permissions': {'sales': ['view']}})
+    role, created = Role.objects.get_or_create(name='DebugRole')
+    role.permissions = {'sales': ['view']}
+    role.save()
     
     # Create Employee WITH Branch
     username = 'emp_branch_debug'
@@ -60,9 +62,25 @@ def test_dashboard_access():
                  print("Sidebar 'Dashboard' link found.")
                  
              if 'Sales' in content:
-                 print("Sidebar 'Sales' link found (Permission: view).")
+                 print("Sidebar 'Sales' link found.")
+                 if 'data-bs-target="#collapseSales"' in content:
+                     print("  -> Sales is ACTIVE (Has dropdown toggle).")
+                 else:
+                     print("  -> Sales is LOCKED (No dropdown toggle).")
+             
+             if 'Finance' in content:
+                 print("Sidebar 'Finance' link found.")
+                 if 'data-bs-target="#collapseFinance"' in content:
+                     print("  -> Finance is ACTIVE (Has dropdown toggle).")
+                 else:
+                     print("  -> Finance is LOCKED (Correct for restricted role).")
              else:
-                 print("Sidebar 'Sales' link NOT found (Expected if perm missing).")
+                 print("WARNING: Sidebar 'Finance' link NOT found.")
+                 
+             # Dump FULL content
+             with open('dashboard_render.html', 'w', encoding='utf-8') as f:
+                 f.write(content)
+             print("Dumped full dashboard content to dashboard_render.html")
 
     except Exception as e:
         print(f"FATAL ERROR: Dashboard Crashed: {e}")

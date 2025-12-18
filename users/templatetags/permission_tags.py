@@ -46,6 +46,7 @@ def can_view(user, module):
     Filter wrapper for easier usage in if tags.
     Usage: {% if user|can_view:'sales' %}
     """
+    print(f"DEBUG: Checking can_view for {user} - Module: {module}")
     if not user.is_authenticated:
         return False
         
@@ -54,11 +55,19 @@ def can_view(user, module):
         
     if user.role == 'EMPLOYEE':
         if not user.assigned_role:
+            print("DEBUG: Employee has no role")
             return False
+            
         perms = user.assigned_role.permissions
+        print(f"DEBUG: Role perms: {perms}")
+        
         if not perms:
+            print("DEBUG: Perms are empty")
             return False
-        return perms.get(module, [])
+            
+        val = perms.get(module, [])
+        print(f"DEBUG: Module {module} perms: {val}")
+        return val # Returns list ['view'] which is truthy
         
     return False
 

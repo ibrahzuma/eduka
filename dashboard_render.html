@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eDuka - Shop Manager</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bs-font-sans-serif: 'Inter', sans-serif;
+            --sidebar-width: 280px;
+            --primary-color: #4e73df;
+            --secondary-bg: #f8f9fc;
+        }
+
+        body {
+            font-family: var(--bs-font-sans-serif);
+            background-color: var(--secondary-bg);
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #1e1e2d;
+            /* Premium Dark Theme from Indeii */
+            color: #a2a3b7;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            z-index: 1000;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #4e73df #1e1e2d;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #1e1e2d;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: #4e73df;
+            border-radius: 20px;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #0d6efd;
+        }
+
+        .nav-link i.me-2 {
+            margin-right: 0.75rem !important;
+            width: 20px;
+            text-align: center;
+        }
+
+        .collapse-item {
+            display: block;
+            padding: 0.5rem 1rem 0.5rem 3rem;
+            margin: 0 1rem;
+            color: #3f4254;
+            text-decoration: none;
+            border-radius: 0.35rem;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .collapse-item:hover {
+            background-color: #eaecf4;
+            color: #4e73df;
+        }
+
+        .collapse-inner {
+            margin: 0.5rem 1rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.10);
+        }
+
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 1.5rem;
+            letter-spacing: 0.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Topbar Icon Styling */
+        .icon-circle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+
+        .icon-circle:hover {
+            background-color: #f1f3f9;
+        }
+
+        /* ... existing styles ... */
+
+        /* Mobile & Tablet Responsiveness */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+                transition: width 0.3s;
+            }
+
+            .sidebar.toggled {
+                width: var(--sidebar-width);
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 900;
+                /* Behind sidebar (1000) but above content */
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            /* Hide user info on small screens if needed, or adjust */
+            .topbar .navbar-nav {
+                margin-left: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        
+        <nav class="sidebar">
+            <div class="sidebar-brand d-flex align-items-center justify-content-center">
+                <div class="sidebar-brand-icon">
+                    <img src="/static/img/logoeduka.png" alt="eDuka"
+                        style="height: 80px; width: auto; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 8px;">
+                </div>
+            </div>
+            <hr class="sidebar-divider my-0 bg-white opacity-25">
+            <ul class="nav flex-column">
+                <!-- Dashboard -->
+                <li class="nav-item">
+                    <a href="/dashboard/"
+                        class="nav-link ">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                </li>
+                
+
+                
+                
+
+                
+                <li class="nav-item mt-4">
+                    <form id="logout-form" action="/accounts/logout/" method="post" style="display: none;">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="9vJlOraHfrEfLEvAav5nkNCAcKQqs44hglVZBpo8FXbQXNbNQkQvWbzSA8l2wy9o">
+                    </form>
+                    <a href="#" class="nav-link text-danger"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+
+        <!-- Main Content -->
+        <main class="main-content p-0">
+            <!-- Topbar -->
+            <nav
+                class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm border-bottom border-light px-4">
+
+                <!-- Sidebar Toggle (Topbar) -->
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                    <i class="bi bi-list fs-4 text-primary"></i>
+                </button>
+
+                <!-- Topbar Search -->
+                <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-light border-0 small rounded-pill py-2 px-3"
+                            placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2"
+                            style="font-size: 0.9rem; background-color: #f8f9fc !important; color: #6e707e;">
+                        <button class="btn btn-primary rounded-pill ms-2 px-3 shadow-sm" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Topbar Navbar -->
+                <ul class="navbar-nav ms-auto align-items-center">
+
+                    <!-- Nav Item - Alerts -->
+                    <li class="nav-item dropdown no-arrow mx-1">
+                        <a class="nav-link dropdown-toggle icon-circle" href="#" id="alertsDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="bi bi-bell fs-5 text-secondary"></i>
+                            <!-- Counter - Alerts -->
+                            <span class="badge rounded-pill bg-danger badge-counter" id="notification-badge"
+                                style="font-size: 0.6rem; position: absolute; top: 5px; right: 0; box-shadow: 0 0 0 2px #fff; display: none;"></span>
+                        </a>
+                        <!-- Dropdown - Alerts -->
+                        <div class="dropdown-list dropdown-menu dropdown-menu-end shadow animated--grow-in border-0 rounded-3 mt-2"
+                            aria-labelledby="alertsDropdown" style="width: 320px;">
+                            <h6 class="dropdown-header border-0 bg-primary text-white rounded-top py-3">
+                                Alerts Center
+                            </h6>
+                            <div id="notification-list" style="max-height: 300px; overflow-y: auto;">
+                                <!-- Items will be injected here -->
+                                <div class="text-center py-4 text-muted small">Loading...</div>
+                            </div>
+                            <a class="dropdown-item text-center small text-gray-500 py-2 border-top bg-light rounded-bottom"
+                                href="#" onclick="markAsRead(event, null, null)">Mark All Read</a>
+                        </div>
+                    </li>
+
+                    <!-- Nav Item - Messages -->
+                    <li class="nav-item dropdown no-arrow mx-1">
+                        <a class="nav-link dropdown-toggle icon-circle" href="#" id="messagesDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="bi bi-envelope fs-5 text-secondary"></i>
+                            <!-- Counter - Messages -->
+                            <span class="badge rounded-pill bg-warning text-dark badge-counter"
+                                style="font-size: 0.6rem; position: absolute; top: 5px; right: 0; box-shadow: 0 0 0 2px #fff;">7</span>
+                        </a>
+                    </li>
+
+                    <div class="topbar-divider d-none d-sm-block vr mx-3 h-50 my-auto"></div>
+
+                    <!-- Nav Item - User Information -->
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <div class="text-end d-none d-lg-block">
+                                <span class="d-block text-gray-800 fw-bold small">Emp_Branch_Debug</span>
+                                <span class="d-block text-muted small" style="font-size: 0.75rem;">
+                                    {{
+                                    user.assigned_role.name|default:user.get_role_display|title }}
+                                </span>
+                            </div>
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                                style="width: 40px; height: 40px; font-size: 1.2rem;">
+                                E
+                            </div>
+                        </a>
+                        <!-- Dropdown - User Information -->
+                        <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in border-0 rounded-3 mt-2"
+                            aria-labelledby="userDropdown">
+                            <h6 class="dropdown-header">
+                                User Account
+                            </h6>
+                            <a class="dropdown-item py-2" href="/accounts/profile/">
+                                <i class="bi bi-person me-2 text-gray-400"></i>
+                                Profile
+                            </a>
+                            <a class="dropdown-item py-2" href="/settings/">
+                                <i class="bi bi-gear me-2 text-gray-400"></i>
+                                Settings
+                            </a>
+                            <div class="dropdown-divider my-1"></div>
+                            <a class="dropdown-item py-2 text-danger" href="#"
+                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="bi bi-box-arrow-right me-2 text-danger"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+            <div class="p-4">
+                
+
+                
+<style>
+    /* Indeii-Style Quick Actions */
+    .quick-action-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .quick-action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .icon-box-purple {
+        background: rgba(111, 66, 193, 0.1);
+        color: #6f42c1;
+    }
+
+    .icon-box-blue {
+        background: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+    }
+
+    .icon-box-green {
+        background: rgba(25, 135, 84, 0.1);
+        color: #198754;
+    }
+
+    .icon-box-orange {
+        background: rgba(253, 126, 20, 0.1);
+        color: #fd7e14;
+    }
+
+    /* Stats Cards */
+    .stat-card {
+        border: none;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #a2a3b7;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1e1e2d;
+    }
+
+    /* Timeframe Filter */
+    .btn-timeframe {
+        border: 1px solid #e4e6ef;
+        color: #5e6278;
+        background: #fff;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .btn-timeframe:hover,
+    .btn-timeframe.active {
+        background: #f5f8fa;
+        color: #0d6efd;
+        border-color: #f5f8fa;
+    }
+</style>
+
+<!-- Subscription Banner -->
+<!-- Subscription Banner -->
+ <div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-danger text-white border-0 shadow-sm"
+            style="background: linear-gradient(45deg, #ff357a, #fff172);">
+            <div class="card-body d-flex justify-content-between align-items-center py-3"
+                style="background: #FFF4DE; border-left: 5px solid #FFA800; color: #000;">
+                <div class="d-flex align-items-center">
+                    
+                    <i class="bi bi-exclamation-triangle-fill text-warning me-3 fs-3"></i>
+                    <div>
+                        <h6 class="mb-0 fw-bold">
+                            
+                            6 Days remaining of Free Trial
+                            
+                        </h6>
+                        <small class="text-muted">Renew now to avoid service interruption.</small>
+                    </div>
+                    
+                </div>
+                <a href="/dashboard/pricing/" class="btn btn-dark fw-bold px-4 rounded-pill">Renew / Upgrade</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Header & Filters -->
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h3 class="fw-bold text-dark mb-0">Dashboard</h3>
+        <p class="text-muted mb-0">Welcome, emp_branch_debug</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <div class="btn-group shadow-sm" role="group">
+            <a href="?date_range=today"
+                class="btn btn-timeframe active">Today</a>
+            <a href="?date_range=week"
+                class="btn btn-timeframe ">Week</a>
+            <a href="?date_range=month"
+                class="btn btn-timeframe ">Month</a>
+            <a href="?date_range=year"
+                class="btn btn-timeframe ">Year</a>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Grid -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h6 class="text-muted fw-bold text-uppercase small mb-3">Quick Actions</h6>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="/sales/pos/" class="text-decoration-none">
+            <div class="card quick-action-card h-100 shadow-sm p-3">
+                <div class="card-body text-center">
+                    <div class="icon-box icon-box-blue mx-auto">
+                        <i class="bi bi-cart-plus-fill"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">Record Sales</h6>
+                    <small class="text-muted">Sell products/services</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="/finance/create/" class="text-decoration-none">
+            <div class="card quick-action-card h-100 shadow-sm p-3">
+                <div class="card-body text-center">
+                    <div class="icon-box icon-box-orange mx-auto">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">Expenses</h6>
+                    <small class="text-muted">Record expenses</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="/purchase/create/" class="text-decoration-none">
+            <div class="card quick-action-card h-100 shadow-sm p-3">
+                <div class="card-body text-center">
+                    <div class="icon-box icon-box-purple mx-auto">
+                        <i class="bi bi-bag-plus-fill"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">Purchases</h6>
+                    <small class="text-muted">Restock inventory</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="/inventory/products/create/" class="text-decoration-none">
+            <div class="card quick-action-card h-100 shadow-sm p-3">
+                <div class="card-body text-center">
+                    <div class="icon-box icon-box-green mx-auto">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">New Product</h6>
+                    <small class="text-muted">Register product</small>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <!-- Sales Card -->
+    <div class="col-md-4 mb-3">
+        <div class="card stat-card h-100 p-3">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label mb-1">Sales (Today)</div>
+                    <div class="stat-value text-primary">TZS 0</div>
+                    <div class="small text-muted mt-2">
+                        <i class="bi bi-arrow-up-short text-success"></i> Total: 0
+                    </div>
+                </div>
+                <div class="icon-box icon-box-blue rounded-circle" style="width: 60px; height: 60px;">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Purchases Card -->
+    <div class="col-md-4 mb-3">
+        <div class="card stat-card h-100 p-3">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label mb-1">Purchases (Today)</div>
+                    <div class="stat-value text-danger">TZS 0</div>
+                    <div class="small text-muted mt-2">
+                        <i class="bi bi-arrow-down-short text-danger"></i> Total: 0
+                    </div>
+                </div>
+                <div class="icon-box icon-box-orange rounded-circle" style="width: 60px; height: 60px;">
+                    <i class="bi bi-cart-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Branches Card -->
+    <div class="col-md-4 mb-3">
+        <a href="/shops/branches/" class="text-decoration-none">
+            <div class="card stat-card h-100 p-3">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label mb-1">Total Branches</div>
+                        <div class="stat-value text-info">1</div>
+                        <div class="small text-muted mt-2">
+                            <i class="bi bi-shop text-info"></i> Active Locations
+                        </div>
+                    </div>
+                    <div class="icon-box icon-box-purple rounded-circle" style="width: 60px; height: 60px;">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Recent Orders Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="mb-0 fw-bold">Recent Transactions</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 text-muted small text-uppercase">ID</th>
+                            <th class="text-muted small text-uppercase">Date</th>
+                            <th class="text-muted small text-uppercase">Amount</th>
+                            <th class="text-muted small text-uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No recent transactions found.</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+            </div>
+
+            <footer class="sticky-footer bg-white py-3 border-top border-light mt-auto">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span class="text-secondary small">Copyright &copy; eDuka SaaS 2025</span>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Sidebar Toggle Logic for Mobile (Placed first to ensure execution)
+            const sidebar = document.querySelector('.sidebar');
+            const toggleBtn = document.getElementById('sidebarToggleTop');
+
+            // Create Overlay
+            if (!document.querySelector('.sidebar-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                document.body.appendChild(overlay);
+
+                if (toggleBtn && sidebar) {
+                    toggleBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        sidebar.classList.toggle('toggled');
+                        overlay.classList.toggle('show');
+                    });
+
+                    // Close when clicking overlay
+                    overlay.addEventListener('click', function () {
+                        sidebar.classList.remove('toggled');
+                        overlay.classList.remove('show');
+                    });
+                }
+            }
+
+            const badge = document.getElementById('notification-badge');
+            const list = document.getElementById('notification-list');
+            const bell = document.getElementById('alertsDropdown');
+
+            // Safety check
+            if (!badge || !list || !bell) return;
+
+            function fetchNotifications(onlyCount = true) {
+                fetch('/api/notifications/list/')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update Badge
+                        if (data.unread_count > 0) {
+                            badge.innerText = data.unread_count > 9 ? '9+' : data.unread_count;
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+
+                        // Update List if needed
+                        if (!onlyCount) {
+                            renderList(data.notifications);
+                        }
+                    })
+                    .catch(error => console.error('Error fetching notifications:', error));
+            }
+
+            function renderList(notifications) {
+                if (notifications.length === 0) {
+                    list.innerHTML = '<div class="text-center py-4 text-muted small">No new alerts</div>';
+                    return;
+                }
+
+                let html = '';
+                notifications.forEach(n => {
+                    const bgClass = n.is_read ? 'bg-white' : 'bg-light';
+                    const icon = n.link ? 'bi-link-45deg' : 'bi-info-circle';
+                    const color = n.is_read ? 'text-secondary' : 'text-primary';
+
+                    html += `
+                        <a class="dropdown-item d-flex align-items-center py-3 border-bottom ${bgClass}" href="${n.link || '#'}">
+                            <div class="me-3">
+                                <div class="icon-circle bg-primary bg-opacity-10 ${color}">
+                                    <i class="bi ${icon}"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">${n.created_at}</div>
+                                <span class="fw-bold d-block text-dark" style="font-size: 0.85rem;">${n.verb}</span>
+                                <span class="small text-muted text-wrap">${n.message}</span>
+                            </div>
+                        </a>
+                    `;
+                });
+                list.innerHTML = html;
+            }
+
+            function markAsRead() {
+                fetch('/api/notifications/read/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '9vJlOraHfrEfLEvAav5nkNCAcKQqs44hglVZBpo8FXbQXNbNQkQvWbzSA8l2wy9o',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                }).then(() => {
+                    badge.style.display = 'none';
+                });
+            }
+
+            // Initial Fetch
+            fetchNotifications(true);
+
+            // Poll every 30s
+            setInterval(() => fetchNotifications(true), 30000);
+
+            // On Click
+            bell.addEventListener('show.bs.dropdown', function () {
+                fetch('/api/notifications/list/')
+                    .then(response => response.json())
+                    .then(data => {
+                        renderList(data.notifications);
+                        markAsRead();
+                    });
+            });
+
+
+        });
+</body >
+</html >
+
+</html >
