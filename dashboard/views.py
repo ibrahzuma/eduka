@@ -87,12 +87,7 @@ class DashboardTemplateView(LoginRequiredMixin, TemplateView):
             
             # If Employee, further filter by cashier
             if getattr(user, 'role', None) == 'EMPLOYEE':
-                # "Show his staff" -> interpreted as "Show his own stats" based on common requirements
-                # or if manager, show all? User said "only show his staff" -> likely "only show his stuff" or "sales made by him"
-                # UPDATE: User requested "See all things without exception" if assigned to branch.
-                # So we show ALL sales for the shop/branch.
-                # sales = sales.filter(cashier=user) # RESTRICTION REMOVED
-                pass
+                sales = sales.filter(cashier=user)
 
             context['total_sales_volume'] = sales.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
             context['sales_period'] = sales.filter(created_at__date__gte=start_date).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
@@ -102,8 +97,7 @@ class DashboardTemplateView(LoginRequiredMixin, TemplateView):
             # If we strictly follow "only show his staff" (stuff), maybe hide purchases? 
             # Letting it show shop purchases for now but could be restricted.
             # Tenant Purchases
-            if getattr(user, 'role', None) == 'EMPLOYEE' and not (getattr(user, 'branch', None) or getattr(user, 'shop', None)):
-                 # Only restrict if NOT assigned to a branch/shop (safety fallback)
+            if getattr(user, 'role', None) == 'EMPLOYEE':
                  purchases = PurchaseOrder.objects.none() 
             else:
                 purchases = PurchaseOrder.objects.filter(shop__in=shops)
@@ -165,12 +159,14 @@ class DashboardTemplateView(LoginRequiredMixin, TemplateView):
                     context['subscription'] = MockSub()
 
         # Calculate Banner Visibility (Backend Logic for Safety)
-        # Show if: Less than 7 days left, OR Expired, OR No Subscription
-        context['show_subscription_banner'] = (
-            context['days_left'] <= 7 or 
-            context['subscription_status'] == 'EXPIRED' or 
-            not context['has_subscription']
-        )
+        if user.role == 'EMPLOYEE':
+            context['show_subscription_banner'] = False
+        else:
+            context['show_subscription_banner'] = (
+                context['days_left'] <= 7 or 
+                context['subscription_status'] == 'EXPIRED' or 
+                not context['has_subscription']
+            )
         
         return context
 

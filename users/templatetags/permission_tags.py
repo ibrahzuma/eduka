@@ -24,10 +24,6 @@ def has_permission(context, module, action='view'):
         
     # 2. Employees check assigned_role
     if user.role == 'EMPLOYEE':
-        # BRANCH OVERRIDE: Full access if assigned to branch
-        if getattr(user, 'branch', None) or getattr(user, 'shop', None):
-            return True
-
         if not user.assigned_role:
             return False # Employee without role has no access (or basic access?)
             
@@ -56,12 +52,6 @@ def can_view(user, module):
         return True
         
     if user.role == 'EMPLOYEE':
-        # BRANCH OVERRIDE: If employee has a branch, they see EVERYTHING in the UI (dropdowns)
-        # This satisfies "see all things in the dashboard when he is assign to a branch without exception"
-        if getattr(user, 'branch', None) or getattr(user, 'shop', None):
-             # Implicitly grant 'view' to everything if they are a valid branch employee
-             return ['view'] 
-
         if not user.assigned_role:
             return False
             
