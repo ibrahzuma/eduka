@@ -37,7 +37,9 @@ class ShopCreateView(LoginRequiredMixin, View):
 class BranchListView(LoginRequiredMixin, View):
     def get(self, request):
         shop = None
-        if hasattr(request.user, 'shops') and request.user.shops.exists():
+        if getattr(request.user, 'shop', None):
+            shop = request.user.shop
+        elif hasattr(request.user, 'shops') and request.user.shops.exists():
             shop = request.user.shops.first()
         elif hasattr(request.user, 'employee_profile'):
             shop = request.user.employee_profile.shop
@@ -91,7 +93,9 @@ class ShopSettingsView(LoginRequiredMixin, View):
     template_name = 'shops/settings.html'
 
     def get_shop(self, request):
-        if hasattr(request.user, 'shops') and request.user.shops.exists():
+        if getattr(request.user, 'shop', None):
+            return request.user.shop
+        elif hasattr(request.user, 'shops') and request.user.shops.exists():
             return request.user.shops.first()
         elif hasattr(request.user, 'employee_profile'):
             return request.user.employee_profile.shop

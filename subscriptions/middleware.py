@@ -43,21 +43,25 @@ class SubscriptionMiddleware:
 
         # Check User's Shop Subscription
         try:
-            shop = Shop.objects.filter(owner=request.user).first()
+            shop = None
+            if getattr(request.user, 'shop', None):
+                shop = request.user.shop
+            elif hasattr(request.user, 'shops') and request.user.shops.exists():
+                shop = request.user.shops.first()
+            elif hasattr(request.user, 'employee_profile'):
+                shop = request.user.employee_profile.shop
+
             if shop:
                 # 1. Check if DB Subscription exists and is valid
                 if hasattr(shop, 'subscription') and shop.subscription.is_valid():
                     return self.get_response(request)
                 
                 # 2. Fallback: Registration Date Trial Logic
-                # If no valid subscription, check if they are within 7 days of registration
                 days_since_reg = (timezone.now() - shop.created_at).days
                 if days_since_reg < 7:
-                    # Grant Trial Access
                     return self.get_response(request)
                 
                 # 3. If neither valid sub nor trial -> BLOCK
-                # Redirect to pricing page
                 return redirect('shop_pricing')
                 
         except Exception:

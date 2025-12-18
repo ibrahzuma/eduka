@@ -14,7 +14,14 @@ def subscription_status(request):
 
     # Check User's Shop
     try:
-        shop = Shop.objects.filter(owner=request.user).first()
+        shop = None
+        if getattr(request.user, 'shop', None):
+            shop = request.user.shop
+        elif hasattr(request.user, 'shops') and request.user.shops.exists():
+            shop = request.user.shops.first()
+        elif hasattr(request.user, 'employee_profile'):
+            shop = request.user.employee_profile.shop
+
         if shop:
             # 1. Check DB Subscription
             if hasattr(shop, 'subscription') and shop.subscription.is_valid():

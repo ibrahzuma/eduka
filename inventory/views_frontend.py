@@ -32,12 +32,18 @@ class BaseShopView(LoginRequiredMixin):
     """Base view to handle shop context and security"""
     
     def get_shop(self):
-        # Assumes user has a shop profiling, for now taking the first one associated or created
-        # Logic to be refined based on user-shop relationship
+        # 1. Direct check for Employee's assigned shop
+        if getattr(self.request.user, 'shop', None):
+            return self.request.user.shop
+            
+        # 2. Check for Owner's shops
         if hasattr(self.request.user, 'shops') and self.request.user.shops.exists():
             return self.request.user.shops.first()
-        elif hasattr(self.request.user, 'employee_profile'):
+            
+        # 3. Legacy fallback
+        if hasattr(self.request.user, 'employee_profile'):
              return self.request.user.employee_profile.shop
+             
         return None
 
 class ProductListView(BaseShopView, ListView):
@@ -329,7 +335,9 @@ def export_stock_pdf(request):
         return redirect('login')
     
     shop = None
-    if hasattr(request.user, 'shops') and request.user.shops.exists():
+    if getattr(request.user, 'shop', None):
+        shop = request.user.shop
+    elif hasattr(request.user, 'shops') and request.user.shops.exists():
         shop = request.user.shops.first()
     elif hasattr(request.user, 'employee_profile'):
         shop = request.user.employee_profile.shop
@@ -471,7 +479,9 @@ def export_stock_csv(request):
         return redirect('login')
     
     shop = None
-    if hasattr(request.user, 'shops') and request.user.shops.exists():
+    if getattr(request.user, 'shop', None):
+        shop = request.user.shop
+    elif hasattr(request.user, 'shops') and request.user.shops.exists():
         shop = request.user.shops.first()
     elif hasattr(request.user, 'employee_profile'):
         shop = request.user.employee_profile.shop
@@ -515,7 +525,9 @@ def export_stock_excel(request):
     
     # Logic to get shop (duplicated from BaseShopView for function view)
     shop = None
-    if hasattr(request.user, 'shops') and request.user.shops.exists():
+    if getattr(request.user, 'shop', None):
+        shop = request.user.shop
+    elif hasattr(request.user, 'shops') and request.user.shops.exists():
         shop = request.user.shops.first()
     elif hasattr(request.user, 'employee_profile'):
         shop = request.user.employee_profile.shop

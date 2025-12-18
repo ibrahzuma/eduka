@@ -15,7 +15,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         shop = None
-        if hasattr(user, 'shops') and user.shops.exists():
+        if getattr(user, 'shop', None):
+            shop = user.shop
+        elif hasattr(user, 'shops') and user.shops.exists():
             shop = user.shops.first()
         elif hasattr(user, 'employee_profile'):
             shop = user.employee_profile.shop

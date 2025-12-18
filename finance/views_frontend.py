@@ -7,10 +7,18 @@ from .forms import ExpenseForm
 
 class BaseShopView(LoginRequiredMixin):
     def get_shop(self):
+        # 1. Direct check for Employee's assigned shop
+        if getattr(self.request.user, 'shop', None):
+            return self.request.user.shop
+            
+        # 2. Check for Owner's shops
         if hasattr(self.request.user, 'shops') and self.request.user.shops.exists():
             return self.request.user.shops.first()
-        elif hasattr(self.request.user, 'employee_profile'):
+            
+        # 3. Legacy fallback
+        if hasattr(self.request.user, 'employee_profile'):
              return self.request.user.employee_profile.shop
+             
         return None
 
 class ExpenseListView(BaseShopView, ListView):

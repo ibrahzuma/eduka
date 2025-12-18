@@ -9,10 +9,18 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView, T
 
 class BaseShopView(LoginRequiredMixin):
     def get_shop(self):
+        # 1. Direct check for Employee's assigned shop
+        if getattr(self.request.user, 'shop', None):
+            return self.request.user.shop
+            
+        # 2. Check for Owner's shops
         if hasattr(self.request.user, 'shops') and self.request.user.shops.exists():
             return self.request.user.shops.first()
-        elif hasattr(self.request.user, 'employee_profile'):
+            
+        # 3. Legacy fallback
+        if hasattr(self.request.user, 'employee_profile'):
              return self.request.user.employee_profile.shop
+             
         return None
 
 class SupplierListView(BaseShopView, ListView):
@@ -48,7 +56,6 @@ class SupplierUpdateView(BaseShopView, UpdateView):
     success_url = reverse_lazy('supplier_list')
 
     def get_queryset(self):
-        # Ensure user can only edit their own shop's suppliers
         shop = self.get_shop()
         if shop:
             return Supplier.objects.filter(shop=shop)
@@ -65,19 +72,11 @@ class SupplierDetailView(BaseShopView, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Add purchase history
         context['recent_purchases'] = PurchaseOrder.objects.filter(
             supplier=self.object
         ).order_by('-created_at')[:10]
         return context
 
-class BaseShopView(LoginRequiredMixin):
-    def get_shop(self):
-        if hasattr(self.request.user, 'shops') and self.request.user.shops.exists():
-            return self.request.user.shops.first()
-        elif hasattr(self.request.user, 'employee_profile'):
-             return self.request.user.employee_profile.shop
-        return None
 
 class PurchaseListView(BaseShopView, ListView):
     model = PurchaseOrder
