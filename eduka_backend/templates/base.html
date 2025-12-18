@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load permission_tags %}
 
 <head>
     <meta charset="UTF-8">
@@ -192,12 +193,14 @@
             <hr class="sidebar-divider my-0 bg-white opacity-25">
             <ul class="nav flex-column">
                 <!-- Dashboard -->
+                {% if user|can_view:'dashboard' %}
                 <li class="nav-item">
                     <a href="{% url 'dashboard' %}"
                         class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                         <i class="bi bi-speedometer2 me-2"></i> Dashboard
                     </a>
                 </li>
+                {% endif %}
                 {% if user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'superuser_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
@@ -237,13 +240,16 @@
 
                 {% if subscription_is_valid %}
                 <!-- Branches -->
+                {% if user|can_view:'branches' %}
                 <li class="nav-item">
                     <a href="/shops/branches/" class="nav-link {% if 'branches' in request.path %}active{% endif %}">
                         <i class="bi bi-shop me-2"></i> Branches
                     </a>
                 </li>
+                {% endif %}
 
                 <!-- Products Dropdown -->
+                {% if user|can_view:'products' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'product_' in request.resolver_match.url_name or 'category_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseProducts"
@@ -268,8 +274,10 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
 
                 <!-- Services Dropdown -->
+                {% if user|can_view:'services' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'service_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseServices"
@@ -289,8 +297,10 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
 
                 <!-- Inventory Dropdown -->
+                {% if user|can_view:'inventory' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'stock_' in request.resolver_match.url_name or 'inventory_' in request.resolver_match.url_name or 'abc_' in request.resolver_match.url_name or 'profitability_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseInventory"
@@ -320,8 +330,10 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
 
                 <!-- Sales Dropdown -->
+                {% if user|can_view:'sales' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'sale_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseSales"
@@ -345,8 +357,10 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
 
                 <!-- Purchases Dropdown -->
+                {% if user|can_view:'purchases' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'purchase_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapsePurchases"
@@ -371,8 +385,10 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
 
                 <!-- Finance Dropdown -->
+                {% if user|can_view:'finance' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'expense_' in request.resolver_match.url_name or 'income_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseFinance"
@@ -402,8 +418,10 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
 
                 <!-- Clients Dropdown -->
+                {% if user|can_view:'clients' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'client_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseClients"
@@ -425,8 +443,10 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
 
                 <!-- Reports Dropdown -->
+                {% if user|can_view:'reports' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'report_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseReports"
@@ -456,7 +476,9 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
                 <!-- User Management Dropdown -->
+                {% if user|can_view:'users' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'role_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseUserMgmt"
@@ -476,8 +498,10 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
 
                 <!-- Employees Dropdown -->
+                {% if user|can_view:'users' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'employee_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseEmployees"
@@ -496,10 +520,12 @@
                                 href="{% url 'employee_create' %}">Create Employee</a>
                         </div>
                     </div>
+                    {% endif %}
 
 
 
                     <!-- Returns Dropdown -->
+                    {% if user|can_view:'returns' %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'return_' in request.resolver_match.url_name %} {% else %}collapsed{% endif %}"
                         href="#" data-bs-toggle="collapse" data-bs-target="#collapseReturns"
@@ -519,6 +545,7 @@
                         </div>
                     </div>
                 </li>
+                {% endif %}
                 {% endif %}
                 {% if user.role != 'EMPLOYEE' %}
                 <li class="nav-item">
