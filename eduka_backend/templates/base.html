@@ -244,11 +244,6 @@
                     <a href="/shops/branches/" class="nav-link {% if 'branches' in request.path %}active{% endif %}">
                         <i class="bi bi-shop me-2"></i> Branches
                     </a>
-                    {% else %}
-                    <a href="#" class="nav-link text-muted" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-shop me-2"></i> Branches
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
 
@@ -278,11 +273,6 @@
                                 href="{% url 'category_list' %}">Categories</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-box me-2"></i> Products
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
 
@@ -307,11 +297,6 @@
                                 href="{% url 'service_create' %}">Create Service</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-tools me-2"></i> Services
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
 
@@ -346,11 +331,6 @@
                                 href="{% url 'profitability_report' %}">Profitability Report</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-boxes me-2"></i> Inventory
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
 
@@ -379,11 +359,6 @@
                                 href="{% url 'sale_recent' %}">Recent Sales</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-receipt me-2"></i> Sales
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
 
@@ -413,11 +388,6 @@
                                 href="{% url 'supplier_list' %}">Manage Suppliers</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-bag me-2"></i> Purchases
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
 
@@ -452,11 +422,6 @@
                                 href="{% url 'income_create' %}">Record Income</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-wallet2 me-2"></i> Finance
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
 
@@ -483,11 +448,6 @@
                                 href="{% url 'client_import' %}">Import Clients</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-people me-2"></i> Clients
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
 
@@ -522,11 +482,6 @@
                                 href="{% url 'report_cashflow' %}">Cashflow</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-bar-chart me-2"></i> Reports
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
                 <!-- User Management Dropdown -->
@@ -550,11 +505,6 @@
                                 href="{% url 'role_create' %}">Create Role</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-person-badge me-2"></i> Role Management
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
 
@@ -579,11 +529,6 @@
                                 href="{% url 'employee_create' %}">Create Employee</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-people-fill me-2"></i> Employees
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
 
@@ -609,11 +554,6 @@
                                 href="{% url 'return_outwards' %}">Return Outwards</a>
                         </div>
                     </div>
-                    {% else %}
-                    <a class="nav-link text-muted" href="#" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="bi bi-arrow-return-left me-2"></i> Returns
-                        <i class="bi bi-lock-fill ms-auto" style="font-size: 0.8em;"></i>
-                    </a>
                     {% endif %}
                 </li>
                 {% endif %}
