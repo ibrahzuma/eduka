@@ -133,88 +133,80 @@
     });
 
     function fetchPlans() {
-        fetch('/api/pricing/')
+        // Updated API Endpoint
+        fetch('/subscriptions/api/plans/')
             .then(response => response.json())
             .then(data => {
                 const container = document.getElementById('plansContainer');
-                if (data.length > 0) {
-                    container.innerHTML = ''; // Clear once before rendering all
-                    data.forEach(plan => {
-                        if (plan.is_active) {
-                            renderPlanCycles(plan);
-                        }
-                    });
+                container.innerHTML = ''; // Clear loading state
 
-                    // If after trying to render all plans, still empty (e.g. all prices 0)
-                    if (container.children.length === 0) {
-                        container.innerHTML = '<div class="col-12 text-center text-muted"><p>No subscription options currently available.</p></div>';
-                    }
+                if (data.length > 0) {
+                    data.forEach(plan => {
+                        renderPlan(plan);
+                    });
                 } else {
-                    container.innerHTML = '<div class="text-center text-muted">No plans available.</div>';
+                    container.innerHTML = '<div class="col-12 text-center text-muted"><p>No subscription plans currently available.</p></div>';
                 }
             })
             .catch(error => {
                 console.error('Error fetching plans:', error);
-                document.getElementById('plansContainer').innerHTML = '<div class="text-center text-danger">Failed to load pricing plans.</div>';
+                document.getElementById('plansContainer').innerHTML = '<div class="col-12 text-center text-danger"><p>Failed to load pricing plans.</p></div>';
             });
     }
 
-    function renderPlanCycles(plan) {
+    function renderPlan(plan) {
         const container = document.getElementById('plansContainer');
-        // Removed container.innerHTML = '' to allow appending
 
-        const cycles = [
-            { id: 'daily', label: 'Daily', suffix: '/ day' },
-            { id: 'weekly', label: 'Weekly', suffix: '/ week' },
-            { id: 'monthly', label: 'Monthly', suffix: '/ month' },
-            { id: 'quarterly', label: '3 Months', suffix: '/ 3 mo' },
-            { id: 'biannually', label: '6 Months', suffix: '/ 6 mo' },
-            { id: 'yearly', label: 'Yearly', suffix: '/ year' }
-        ];
+        // Parse features for display
+        // Assuming features is a dict like {"shops": 1, "users": 1, ...}
+        // or we allow a generic display list. 
+        // Let's hardcode some icons or logic based on keys, or just generic list.
+        let featuresHtml = '';
+        const features = plan.features || {};
 
-        cycles.forEach(cycle => {
-            const price = plan[`price_${cycle.id}`];
-            // Render if price exists and is greater than 0
-            if (price > 0) {
-                const formattedPrice = parseFloat(price).toLocaleString('en-US');
+        // Custom feature rendering based on known keys
+        if (features.shops) featuresHtml += `<li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i> <span>${features.shops} Shop(s)</span></li>`;
+        if (features.users) featuresHtml += `<li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i> <span>${features.users} User(s)</span></li>`;
+        if (features.products) featuresHtml += `<li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i> <span>${features.products.toLocaleString()} Products</span></li>`;
 
-                const cardHtml = `
-                <div class="col-lg-4 col-md-6 fade-in-up">
-                    <div class="card h-100 border-0 shadow-lg rounded-4 overflow-hidden text-center transition-hover">
-                        <div class="bg-primary bg-opacity-10 py-2">
-                             <h4 class="fw-bold text-primary mb-0 text-uppercase small spacing-wide">${plan.name} - ${cycle.label}</h4>
-                        </div>
-                        
-                        <div class="card-body p-5 d-flex flex-column">
-                            <div class="pricing-display mb-4">
-                                 <h2 class="fw-bold text-dark mb-0">${formattedPrice} <small class="fs-6 text-muted">TZS</small></h2>
-                            </div>
+        // Add generic "24/7 Support"
+        featuresHtml += `<li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i> <span>24/7 Support</span></li>`;
 
-                             <ul class="list-unstyled text-start mb-5 mx-auto small text-muted">
-                                <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i> <span>Daily Report</span></li>
-                                <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i> <span>Stock Tracking</span></li>
-                                <li class="mb-3 d-flex align-items-center"><i class="bi bi-check-circle-fill text-success me-2"></i> <span>24/7 Support</span></li>
-                            </ul>
 
-                            <div class="mt-auto">
-                                <button onclick="openPaymentModal('${plan.id}', '${cycle.id}', '${formattedPrice}')" 
-                                    class="btn btn-primary fw-bold w-100 py-3 shadow-sm scale-on-hover px-4">
-                                    Subscribe ${cycle.label}
-                                </button>
-                            </div>
-                        </div>
+        const cardHtml = `
+        <div class="col-lg-4 col-md-6 fade-in-up">
+            <div class="card h-100 border-0 shadow-lg rounded-4 overflow-hidden text-center transition-hover">
+                <div class="bg-primary bg-opacity-10 py-2">
+                     <h4 class="fw-bold text-primary mb-0 text-uppercase small spacing-wide">${plan.name}</h4>
+                </div>
+                
+                <div class="card-body p-5 d-flex flex-column">
+                    <div class="pricing-display mb-4">
+                         <h2 class="fw-bold text-dark mb-0">${plan.display_price} <small class="fs-6 text-muted">TZS</small></h2>
+                    </div>
+
+                     <ul class="list-unstyled text-start mb-5 mx-auto small text-muted">
+                        ${featuresHtml}
+                    </ul>
+
+                    <div class="mt-auto">
+                        <button onclick="openPaymentModal('${plan.id}', '${plan.cycle}', '${plan.display_price}')" 
+                            class="btn btn-primary fw-bold w-100 py-3 shadow-sm scale-on-hover px-4">
+                            Subscribe
+                        </button>
                     </div>
                 </div>
-                `;
-                container.insertAdjacentHTML('beforeend', cardHtml);
-            }
-        });
+            </div>
+        </div>
+        `;
+        container.insertAdjacentHTML('beforeend', cardHtml);
     }
 
-    function openPaymentModal(planId, cycle, price) {
+    function openPaymentModal(planId, cycle, priceDisplay) {
         selectedPlanId = planId;
         selectedCycle = cycle;
-        document.getElementById('paymentAmountDisplay').innerText = price + " TZS";
+        // Strip TZS or just set text
+        document.getElementById('paymentAmountDisplay').innerText = priceDisplay + " TZS";
 
         // Reset Steps
         resetModal();
@@ -244,8 +236,8 @@
         document.getElementById('paymentStep2').classList.remove('d-none');
         document.getElementById('displayPhone').innerText = phone;
 
-        // API Call
-        fetch('/subscriptions/pay/initiate/', {
+        // API Call - Updated Endpoint
+        fetch('/subscriptions/initiate-payment/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -253,7 +245,7 @@
             },
             body: JSON.stringify({
                 plan_id: selectedPlanId,
-                cycle: selectedCycle,
+                cycle: selectedCycle, // This is now passed from the plan object
                 phone_number: phone
             })
         })
@@ -274,7 +266,8 @@
 
     function startPolling(paymentId) {
         pollInterval = setInterval(() => {
-            fetch(`/subscriptions/pay/status/${paymentId}/`)
+            // Updated Endpoint
+            fetch(`/subscriptions/check-status/${paymentId}/`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'COMPLETED') {
