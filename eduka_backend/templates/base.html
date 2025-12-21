@@ -138,6 +138,48 @@
 
         /* ... existing styles ... */
 
+        /* Global Loader Styles */
+        #global-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.2s linear;
+            backdrop-filter: blur(2px);
+        }
+
+        #global-loader.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         /* Mobile & Tablet Responsiveness */
         @media (max-width: 992px) {
             .sidebar {
@@ -180,6 +222,14 @@
 </head>
 
 <body>
+    <!-- Global Loading Overlay -->
+    <div id="global-loader">
+        <div class="text-center">
+            <div class="loader-spinner mb-3"></div>
+            <h6 class="text-primary fw-bold">Loading...</h6>
+        </div>
+    </div>
+
     <div class="d-flex">
         <!-- Sidebar -->
         {% if user.is_authenticated %}
@@ -804,8 +854,68 @@
                             renderList(data.notifications);
                         }
                     })
-                    .catch(error => console.error('Error fetching notifications:', error));
+                    .catch(err => console.error('Error fetching notifications:', err));
             }
+
+            // Initial fetch
+            fetchNotifications();
+            // Poll every 30 seconds
+            setInterval(fetchNotifications, 30000);
+
+            // --- Global Loader Logic ---
+            const loader = document.getElementById('global-loader');
+
+            function showLoader() {
+                if (loader) loader.classList.add('show');
+            }
+
+            function hideLoader() {
+                if (loader) loader.classList.remove('show');
+            }
+
+            // Show on link clicks (excluding anchors/new tabs)
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('a');
+                if (link) {
+                    const href = link.getAttribute('href');
+                    const target = link.getAttribute('target');
+
+                    if (href &&
+                        !href.startsWith('#') &&
+                        !href.startsWith('javascript:') &&
+                        target !== '_blank' &&
+                        !e.ctrlKey && !e.metaKey &&
+                        !link.hasAttribute('data-no-loader') &&
+                        !link.hasAttribute('data-bs-toggle') // Bootstrap toggles
+                    ) {
+                        showLoader();
+                        // Fallback: hide if page doesn't unload within 5s (e.g. download)
+                        setTimeout(hideLoader, 5000);
+                    }
+                }
+            });
+
+            // Show on form submit
+            document.addEventListener('submit', function (e) {
+                const form = e.target;
+                if (!form.hasAttribute('data-no-loader')) {
+                    showLoader();
+                    // Disable submit button to prevent double submit
+                    const btn = form.querySelector('[type="submit"]');
+                    if (btn) {
+                        btn.style.opacity = '0.7';
+                        btn.style.pointerEvents = 'none';
+                    }
+                }
+            });
+
+            // Hide on page show (handles back button cache issues)
+            window.addEventListener('pageshow', function (e) {
+                hideLoader();
+            });
+
+            // Initial hide (safeguard)
+            hideLoader();
 
             function renderList(notifications) {
                 if (notifications.length === 0) {
