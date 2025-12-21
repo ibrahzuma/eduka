@@ -42,7 +42,8 @@ class SubscriptionPlanListView(views.APIView):
     permission_classes = [permissions.IsAuthenticated] 
 
     def get(self, request):
-        plans = SubscriptionPlan.objects.filter(is_active=True)
+        # Exclude Free Trial (case insensitive)
+        plans = SubscriptionPlan.objects.filter(is_active=True).exclude(name__icontains='Trial')
         
         # Helper to determine sort order
         def get_sort_key(plan):
