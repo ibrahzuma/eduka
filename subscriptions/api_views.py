@@ -37,9 +37,7 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
         return f"{price:,.0f} / {cycle_label}"
 
 class SubscriptionPlanListView(views.APIView):
-    permission_classes = [permissions.AllowAny] # Allow viewing plans without login? Or IsAuthenticated. Let's stick to IsAuthenticated generally, but public for pricing page is generic.
-    # User asked for flutter app, likely logged in or during registration.
-    permission_classes = [permissions.IsAuthenticated] 
+    permission_classes = [permissions.AllowAny] # Publicly accessible for landing page 
 
     def get(self, request):
         # Exclude Free Trial (case insensitive)

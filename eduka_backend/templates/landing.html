@@ -458,73 +458,51 @@
     <!-- Pricing Fetch Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            fetch('/api/pricing/')
+            fetch('/subscriptions/api/plans/')
                 .then(response => response.json())
                 .then(data => {
                     const container = document.getElementById('pricing-container');
                     container.innerHTML = ''; // Clear loading spinner
 
-                    const plans = data.plans || [];
-
-                    // Filter for active plans if API returns all
-                    const activePlans = plans.filter(p => p.is_active);
-
-                    if (activePlans.length === 0) {
+                    if (data.length === 0) {
                         container.innerHTML = '<div class="col-12 text-center text-muted">No pricing plans available at the moment.</div>';
                         return;
                     }
 
-                    // Assume we want to show the Monthly price for simplicity or the first available option
-                    // Select the first active plan (e.g. Standard)
-                    const plan = activePlans[0];
+                    data.forEach(plan => {
+                        // Build features list
+                        let featuresHtml = '';
+                        const features = plan.features || {};
+                        if (features.shops) featuresHtml += `<li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> ${features.shops} Shop(s)</li>`;
+                        if (features.users) featuresHtml += `<li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> ${features.users} User(s)</li>`;
+                        if (features.products) featuresHtml += `<li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> ${features.products.toLocaleString()} Products</li>`;
+                        featuresHtml += `<li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> 24/7 Support</li>`;
 
-                    if (!plan) {
-                        container.innerHTML = '<div class="col-12 text-center text-muted">No active plans found.</div>';
-                        return;
-                    }
-
-                    const cycles = [
-                        { id: 'daily', name: 'Daily', suffix: '/day' },
-                        { id: 'weekly', name: 'Weekly', suffix: '/wk' },
-                        { id: 'monthly', name: 'Monthly', suffix: '/mo' },
-                        { id: 'quarterly', name: '3 Months', suffix: '/3mo' }
-                    ];
-
-                    cycles.forEach(cycle => {
-                        const priceKey = `price_${cycle.id}`;
-                        const price = plan[priceKey];
-
-                        if (price && price > 0) {
-                            const formattedPrice = parseFloat(price).toLocaleString('en-US');
-
-                            // Highlight Weekly as Popular (optional, kept from previous context logic if desired)
-                            let badgeHtml = '';
-                            let borderClass = 'clean-card';
-                            if (cycle.id === 'weekly') {
-                                badgeHtml = '<div class="badge bg-primary mb-3">Most Popular</div>';
-                                borderClass = 'clean-card border-primary';
-                            }
-
-                            const card = `
-                                <div class="col-md-3 col-sm-6">
-                                    <div class="${borderClass} text-center d-flex flex-column shadow-sm">
-                                        ${badgeHtml}
-                                        <h4 class="fw-bold text-dark mb-4">${cycle.name}</h4>
-                                        <div class="mb-4">
-                                            <span class="display-6 fw-bold text-primary">${formattedPrice}</span>
-                                            <div class="text-muted small fw-bold">TZS ${cycle.suffix}</div>
-                                        </div>
-                                        <ul class="list-unstyled text-start mb-4 mx-auto text-muted small" style="max-width: 180px;">
-                                            <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> All Features</li>
-                                            <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> 24/7 Support</li>
-                                            <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i> Cancel Anytime</li>
-                                        </ul>
-                                        <a href="{% url 'register' %}" class="btn btn-outline-clean w-100 mt-auto">Choose</a>
-                                    </div>
-                                </div>
-                             `;
-                            container.insertAdjacentHTML('beforeend', card);
+                        // Highlight specific plans if needed (e.g. Monthly/Standard)
+                        let badgeHtml = '';
+                        let borderClass = 'clean-card';
+                        if (plan.name === 'Best Value' || plan.name === 'Standard') { // Example condition
+                            badgeHtml = '<div class="badge bg-primary mb-3">Popular</div>';
+                            borderClass = 'clean-card border-primary';
                         }
+
+                        const card = `
+                            <div class="col-md-4 col-sm-6">
+                                <div class="${borderClass} text-center d-flex flex-column shadow-sm h-100">
+                                    ${badgeHtml}
+                                    <h4 class="fw-bold text-dark mb-4">${plan.name}</h4>
+                                    <div class="mb-4">
+                                        <span class="display-6 fw-bold text-primary">${plan.display_price}</span>
+                                        <div class="text-muted small fw-bold">TZS</div>
+                                    </div>
+                                    <ul class="list-unstyled text-start mb-4 mx-auto text-muted small" style="max-width: 180px;">
+                                        ${featuresHtml}
+                                    </ul>
+                                    <a href="{% url 'register' %}" class="btn btn-outline-clean w-100 mt-auto">Choose Plan</a>
+                                </div>
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', card);
                     });
                 })
                 .catch(error => {
