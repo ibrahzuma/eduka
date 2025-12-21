@@ -42,6 +42,20 @@ class SubscriptionPlanListView(views.APIView):
     permission_classes = [permissions.IsAuthenticated] 
 
     def get(self, request):
-        plans = SubscriptionPlan.objects.filter(is_active=True).order_by('price_daily', 'price_weekly', 'price_monthly', 'price_quarterly', 'price_biannually', 'price_yearly')
-        serializer = SubscriptionPlanSerializer(plans, many=True)
+        plans = SubscriptionPlan.objects.filter(is_active=True)
+        
+        # Helper to determine sort order
+        def get_sort_key(plan):
+            if plan.price_daily > 0: return 1
+            if plan.price_weekly > 0: return 2
+            if plan.price_monthly > 0: return 3
+            if plan.price_quarterly > 0: return 4
+            if plan.price_biannually > 0: return 5
+            if plan.price_yearly > 0: return 6
+            return 7
+            
+        # Sort in Python
+        sorted_plans = sorted(plans, key=get_sort_key)
+        
+        serializer = SubscriptionPlanSerializer(sorted_plans, many=True)
         return response.Response(serializer.data)
