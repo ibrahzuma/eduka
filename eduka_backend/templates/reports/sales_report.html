@@ -19,11 +19,12 @@
         </div>
     </div>
 
-    <!-- Print Header (Visible only on print) -->
     <div class="d-none d-print-block text-center mb-4">
         <h1>Sales Report</h1>
         <p>Generated on: {% now "F j, Y, H:i" %}</p>
     </div>
+
+    {% include 'reports/partials/date_filters.html' %}
 
     <div class="row mb-4">
         <div class="col-xl-4 col-md-6 mb-4">
