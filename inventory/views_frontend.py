@@ -20,6 +20,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Product, Category, Stock, StockMovement
+from .utils import generate_pdf_labels
 from .forms import ProductForm, CategoryForm, StockAdjustmentForm, StockTransferForm, PurchaseForm
 from shops.models import Shop, Branch
 import io
@@ -1057,4 +1058,28 @@ class ProductTemplateDownloadView(LoginRequiredMixin, View):
             '10'
         ])
         
+        return response
+
+class BarcodePrintView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        # Get product IDs from query param `ids` (comma separated)
+        product_ids_str = request.GET.get('ids', '')
+        if not product_ids_str:
+             # Fallback: check if single product_id is passed in kwargs (e.g. /barcode/<id>/)
+            single_id = kwargs.get('pk')
+            if single_id:
+                product_ids = [single_id]
+            else:
+                return HttpResponse("No products selected", status=400)
+        else:
+            product_ids = [int(id) for id in product_ids_str.split(',') if id.isdigit()]
+            
+        products = Product.objects.filter(id__in=product_ids)
+        if not products.exists():
+            return HttpResponse("Products not found", status=404)
+            
+        pdf_buffer = generate_pdf_labels(products)
+        
+        response = HttpResponse(pdf_buffer, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="barcodes.pdf"'
         return response

@@ -538,6 +538,8 @@
                                 href="{% url 'report_income_statement' %}">Income Statement</a>
                             <a class="collapse-item {% if request.resolver_match.url_name == 'report_cashflow' %}active{% endif %}"
                                 href="{% url 'report_cashflow' %}">Cashflow</a>
+                            <a class="collapse-item {% if request.resolver_match.url_name == 'report_forecasting' %}active{% endif %}"
+                                href="{% url 'report_forecasting' %}">Sales Forecasting</a>
                         </div>
                     </div>
                     {% endif %}

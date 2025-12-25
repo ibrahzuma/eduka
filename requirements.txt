@@ -10,3 +10,4 @@ reportlab
 Pillow
 requests
 django-allauth
+python-barcode==0.15.1

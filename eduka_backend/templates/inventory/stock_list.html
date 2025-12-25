@@ -61,6 +61,10 @@
                                         {% endif %}
                             </td>
                             <td>
+                                <a href="{% url 'product_barcode_print' stock.product.id %}"
+                                    class="btn btn-sm btn-outline-secondary me-1" title="Print Barcode">
+                                    <i class="bi bi-upc-scan"></i>
+                                </a>
                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#adjustStockModal"
                                     onclick="setStockData('{{ stock.id }}', '{{ stock.product.name }}', '{{ stock.quantity }}')">

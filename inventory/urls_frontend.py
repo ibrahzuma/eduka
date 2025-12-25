@@ -6,7 +6,8 @@ from .views_frontend import (
     CategoryListView, ServiceListView, ServiceCreateView,
     StockListView, StockManagementView, StockTransferView, InventoryHealthView,
     InventoryAgingView, ABCAnalysisView, ProfitabilityReportView,
-    export_stock_excel, export_stock_pdf, export_stock_csv
+    export_stock_excel, export_stock_pdf, export_stock_csv,
+    BarcodePrintView
 )
 
 urlpatterns = [
@@ -17,6 +18,8 @@ urlpatterns = [
     path('products/<int:pk>/delete/', ProductDeleteView.as_view(), name='product_delete'),
     path('products/import/', ProductImportView.as_view(), name='product_import'),
     path('products/import/template/', ProductTemplateDownloadView.as_view(), name='product_import_template'),
+    path('products/barcode/', BarcodePrintView.as_view(), name='barcode_print'),
+    path('products/<int:pk>/barcode/', BarcodePrintView.as_view(), name='product_barcode_print'),
     
     # Purchase
     path('purchase/create/', PurchaseCreateView.as_view(), name='purchase_create'),
