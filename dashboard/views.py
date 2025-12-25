@@ -128,7 +128,12 @@ class DashboardTemplateView(LoginRequiredMixin, TemplateView):
                 context['subscription_status'] = sub.status
                 
                 if sub.end_date:
-                    context['days_left'] = (sub.end_date - timezone.now()).days
+                    days_left = (sub.end_date - timezone.now()).days
+                    if days_left <= 0:
+                        context['days_left'] = 0
+                        context['subscription_status'] = 'EXPIRED'
+                    else:
+                        context['days_left'] = days_left
                 else:
                     context['days_left'] = 0
             except Exception:

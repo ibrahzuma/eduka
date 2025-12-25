@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser, Role
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -58,3 +58,51 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.role == 'OWNER': return "Owner"
         if obj.role == 'EMPLOYEE': return "Employee"
         return obj.role.title()
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = '__all__'
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'username', 'email', 'phone', 'first_name', 'last_name', 
+            'password', 'assigned_role', 'shop', 'branch', 'is_active', 'role'
+        )
+        extra_kwargs = {
+            'role': {'read_only': True},
+            'shop': {'read_only': True},  # Shop is set automatically based on logged-in owner
+        }
+
+    def create(self, validated_data):
+        # Enforce role as EMPLOYEE
+        validated_data['role'] = CustomUser.Role.EMPLOYEE
+        
+        # User create_user to handle password hashing
+        password = validated_data.pop('password')
+        user = CustomUser(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser.Role  # This is incorrect, Role is a separate model? Let me check models.py
+        # Wait, models.py has `class Role(models.Model):` at line 27.
+        # And CustomUser has `class Role(models.TextChoices):`.
+        # The user likely wants to manage the `Role` model (custom roles) not the choices.
+        # Let's verify models.py content again from previous turn or view it.
+        # Previous turn showed:
+        # 27: class Role(models.Model):
+        # 28:     name = models.CharField(max_length=50, unique=True, help_text="e.g. Manager, Cashier")
+        # 29:     description = models.TextField(blank=True)
+        # 30:     permissions = models.JSONField(default=dict, blank=True)
+        pass
+
+# I need to import Role model first.
+

@@ -68,3 +68,62 @@ class UserActionAPIView(APIView):
             
         except CustomUser.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+from .models import Role
+from .serializers import RoleSerializer, EmployeeSerializer
+
+class RoleListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = RoleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Return generic roles or filtered? 
+        # For now, return all roles as they seem global definition based on model. 
+        # If roles are shop-specific, we'd filter. 
+        # Looking at Role model, it doesn't have a 'shop' FK. So roles are global system-wide definitions?
+        # Let's check model again. 
+        # Model: name, description, permissions. No shop FK. 
+        # So they are global.
+        return Role.objects.all()
+
+class RoleDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = [permissions.IsAdminUser] # Only admins can modify roles defs?
+
+class EmployeeListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = EmployeeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            return CustomUser.objects.none()
+            
+        # If Owner, return their employees
+        if hasattr(user, 'shops') and user.shops.exists():
+            shop = user.shops.first()
+            return CustomUser.objects.filter(shop=shop, role='EMPLOYEE')
+            
+        return CustomUser.objects.none()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if hasattr(user, 'shops') and user.shops.exists():
+            shop = user.shops.first()
+            serializer.save(shop=shop, role='EMPLOYEE')
+        else:
+            # Fallback or error?
+            serializer.save(role='EMPLOYEE')
+
+class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = EmployeeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Ensure owners can only edit their own employees
+        user = self.request.user
+        if hasattr(user, 'shops') and user.shops.exists():
+            shop = user.shops.first()
+            return CustomUser.objects.filter(shop=shop, role='EMPLOYEE')
+        return CustomUser.objects.none()
