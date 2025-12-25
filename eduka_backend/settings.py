@@ -37,6 +37,11 @@ SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False') == 'True'
 CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False') == 'True'
 SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
 
+# Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST_USER = 'support@eduka.com'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 # HSTS Settings (1 Year)
 if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000

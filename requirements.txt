@@ -10,4 +10,5 @@ reportlab
 Pillow
 requests
 django-allauth
-python-barcode==0.15.1
+python-barcode>=0.14.0
+whitenoise>=6.0.0

@@ -114,7 +114,6 @@ class DashboardTemplateView(LoginRequiredMixin, TemplateView):
                 
             # Top Cashier Logic
             try:
-                from django.db.models import Sum
                 # Filter sales for period (using 'sales_period' logic implicitly via sales & start_date)
                 period_sales = sales.filter(created_at__date__gte=start_date)
                 top_cashier_data = period_sales.values('cashier__username', 'cashier__first_name', 'cashier__last_name').annotate(
