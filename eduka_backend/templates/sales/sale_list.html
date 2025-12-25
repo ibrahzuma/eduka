@@ -65,6 +65,12 @@
                                     title="View Invoice">
                                     <i class="bi bi-file-earmark-text"></i> Invoice
                                 </a>
+                                {% if user.role == 'OWNER' or user.is_superuser %}
+                                <a href="{% url 'sale_delete' sale.id %}" class="btn btn-sm btn-outline-danger ms-1"
+                                    title="Delete Sale">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% empty %}

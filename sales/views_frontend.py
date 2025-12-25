@@ -1,6 +1,6 @@
-from django.views.generic import ListView, CreateView, TemplateView
+from django.views.generic import ListView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Sale, SaleItem
@@ -349,3 +349,41 @@ class ReturnOutwardsView(BaseShopView, TemplateView):
         else:
              messages.error(request, "Error in return form.")
              return self.render_to_response(self.get_context_data())
+
+class SaleDeleteView(BaseShopView, DeleteView):
+    model = Sale
+    template_name = 'sales/sale_confirm_delete.html'
+    success_url = reverse_lazy('sale_list')
+    context_object_name = 'sale'
+
+    def get_queryset(self):
+        shop = self.get_shop()
+        if shop:
+            return Sale.objects.filter(shop=shop)
+        return Sale.objects.none()
+
+    def dispatch(self, request, *args, **kwargs):
+        # Restriction: Only Owner or Super Admin
+        if not (request.user.role == 'OWNER' or request.user.is_superuser):
+            messages.error(request, "Permission Denied: Only Owners can delete sales.")
+            return redirect('sale_list')
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.delete(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        
+        # Restore Stock logic
+        with transaction.atomic():
+            for item in self.object.items.all():
+                if item.product and self.object.branch:
+                    from inventory.models import Stock
+                    stock = Stock.objects.filter(branch=self.object.branch, product=item.product).first()
+                    if stock:
+                        stock.quantity += item.quantity
+                        stock.save()
+            
+            messages.success(request, f"Sale #{self.object.id} deleted and stock restored.")
+            return super().delete(request, *args, **kwargs)

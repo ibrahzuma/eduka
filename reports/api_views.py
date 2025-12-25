@@ -9,6 +9,7 @@ from .serializers import (
     ReportProductPricingSerializer, ReportStockMovementSerializer
 )
 import datetime
+from django.utils import timezone # Added timezone
 from django.utils.dateparse import parse_date
 
 class ReportBaseView(views.APIView):
@@ -56,6 +57,35 @@ class SalesReportAPIView(ReportBaseView):
             'total_count': total_count,
             'sales': serializer.data
         })
+
+class SalesSummaryAPIView(ReportBaseView):
+    def get(self, request):
+        shop = self.get_shop()
+        if not shop:
+            return response.Response({'error': 'No shop associated'}, status=400)
+            
+        today = timezone.now().date()
+        
+        periods = {
+            'today': today,
+            'week': today - datetime.timedelta(days=7),
+            'month': today - datetime.timedelta(days=30),
+            'year': today - datetime.timedelta(days=365)
+        }
+        
+        data = {}
+        base_qs = Sale.objects.filter(shop=shop)
+        
+        for key, start_date in periods.items():
+            qs = base_qs.filter(created_at__date__gte=start_date)
+            total = qs.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+            count = qs.count()
+            data[key] = {
+                'total_sales': total,
+                'count': count
+            }
+            
+        return response.Response(data)
 
 class PurchasesReportAPIView(ReportBaseView):
     def get(self, request):
