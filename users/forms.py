@@ -8,10 +8,9 @@ from .models import Role
 class RoleForm(forms.ModelForm):
     class Meta:
         model = Role
-        fields = ['name', 'description']
+        fields = ['name']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Role Name'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description', 'rows': 3}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter role name'}),
         }
 
 class UserRegistrationForm(forms.ModelForm):

@@ -53,18 +53,22 @@ from django.contrib import messages
 
 class RoleListView(LoginRequiredMixin, View):
     def get(self, request):
-        roles = Role.objects.all().order_by('-created_at')
+        shop = request.user.shops.first()
+        roles = Role.objects.filter(shop=shop).order_by('-created_at') if shop else Role.objects.none()
         form = RoleForm()
         return render(request, 'users/role_list.html', {'roles': roles, 'form': form})
 
     def post(self, request):
         form = RoleForm(request.POST)
-        if form.is_valid():
-            form.save()
+        shop = request.user.shops.first()
+        if form.is_valid() and shop:
+            role = form.save(commit=False)
+            role.shop = shop
+            role.save()
             messages.success(request, 'Role created successfully!', extra_tags='success')
             return redirect('role_list')
         
-        roles = Role.objects.all().order_by('-created_at')
+        roles = Role.objects.filter(shop=shop).order_by('-created_at') if shop else Role.objects.none()
         return render(request, 'users/role_list.html', {'roles': roles, 'form': form})
 
 class RoleCreateView(LoginRequiredMixin, View):

@@ -90,9 +90,8 @@ class SaleCreateView(BaseShopView, CreateView):
                         price = float(item.get('price', 0))
                         
                         if product_id and quantity > 0:
-                            product = Product.objects.get(id=product_id)
-                            
-                            # Apply Time-Based Pricing
+                            # [SECURITY] IDOR Protection: filter by shop
+                            product = Product.objects.get(id=product_id, shop=shop)
                             
                             SaleItem.objects.create(
                                 sale=self.object,

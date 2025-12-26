@@ -26,8 +26,8 @@ class CustomUser(AbstractUser):
         return self.username
 
 class Role(models.Model):
-    name = models.CharField(max_length=50, unique=True, help_text="e.g. Manager, Cashier")
-    description = models.TextField(blank=True)
+    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE, related_name='roles', null=True, blank=True)
+    name = models.CharField(max_length=50, help_text="e.g. Manager, Cashier")
     permissions = models.JSONField(default=dict, blank=True) # Data structure: {'sales': ['manage'], 'inventory': ['view', 'edit']}
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

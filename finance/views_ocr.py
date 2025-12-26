@@ -5,8 +5,11 @@ from django.views.decorators.http import require_POST
 import random
 from datetime import date
 
+from django.contrib.auth.decorators import login_required
+
 @csrf_exempt
 @require_POST
+@login_required
 def analyze_receipt(request):
     """
     Mock OCR endpoint.
