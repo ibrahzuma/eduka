@@ -105,11 +105,26 @@
                         <div class="mb-4">
                             <small class="text-muted text-uppercase fw-bold">Pricing Plan</small>
                             <h4 class="font-weight-bold text-dark mt-1">
+                                {% if active_subscription %}
+                                {{ active_subscription.plan.name }}
+                                <span class="badge bg-success fs-6 align-middle ms-2">{{
+                                    active_subscription.get_billing_cycle_display }}</span>
+                                {% else %}
                                 {{ settings_obj.get_plan_display|default:"Trial" }}
+                                {% endif %}
                             </h4>
                         </div>
 
                         <div class="mb-4">
+                            {% if active_subscription %}
+                            <small class="text-muted text-uppercase fw-bold">Subscription Status</small>
+                            <h4 class="font-weight-bold text-dark mt-1">
+                                <span
+                                    class="badge {% if active_subscription.status == 'ACTIVE' %}bg-success{% else %}bg-secondary{% endif %} text-white fs-6 px-3 py-2 rounded-pill">
+                                    {{ active_subscription.get_status_display }}
+                                </span>
+                            </h4>
+                            {% else %}
                             <small class="text-muted text-uppercase fw-bold">Trial days left</small>
                             <h4 class="font-weight-bold text-dark mt-1">
                                 {# logic for trial days #}
@@ -119,24 +134,28 @@
                                 -
                                 {% endif %}
                             </h4>
+                            {% endif %}
                         </div>
 
                         <div class="mb-3">
                             <small class="text-muted text-uppercase fw-bold">Next billing date</small>
                             <p class="h5 mt-1 text-gray-800">
+                                {% if active_subscription %}
+                                {{ active_subscription.end_date|date:"d, M Y" }}
+                                {% else %}
                                 {{ settings_obj.next_billing_date|date:"d, M Y"|default:"-" }}
-                                {% if settings_obj.billing_amount > 0 %}
+                                {% endif %}
+
+                                {% if settings_obj.billing_amount > 0 and not active_subscription %}
                                 <span class="text-muted fs-6">( {{ settings_obj.currency }} {{
                                     settings_obj.billing_amount|intcomma }} )</span>
                                 {% endif %}
                             </p>
-                            <a href="{% url 'shop_pricing' %}" class="btn btn-outline-primary btn-sm mt-2 w-100">Manage
-                                Subscription</a>
                         </div>
 
-                        <div class="d-grid">
-                            <button type="button" class="btn btn-outline-primary rounded-pill">Manage
-                                Subscription</button>
+                        <div class="d-grid mt-4">
+                            <a href="{% url 'shop_pricing' %}" class="btn btn-outline-primary rounded-pill">Manage
+                                Subscription</a>
                         </div>
                     </div>
                 </div>

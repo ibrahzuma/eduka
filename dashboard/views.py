@@ -625,6 +625,11 @@ class SettingsView(LoginRequiredMixin, TemplateView):
              from shops.models import ShopSettings
              settings_obj, _ = ShopSettings.objects.get_or_create(shop=shop)
              context['settings_obj'] = settings_obj
+             
+             # Pass Active Subscription Explicitly
+             if hasattr(shop, 'subscription'):
+                 context['active_subscription'] = shop.subscription
+                 
         return context
 
     def post(self, request, *args, **kwargs):
