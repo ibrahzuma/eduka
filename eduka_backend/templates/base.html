@@ -796,18 +796,19 @@
     <script>
         (function () {
             const idleDuration = 20 * 60 * 1000; // 20 Minutes
+            const isAuthenticated = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
+            const loginUrl = "{% url 'account_login' %}?next={{ request.path }}";
             let idleTimer;
 
             function resetTimer() {
                 clearTimeout(idleTimer);
-                idleTimer = setTimeout(logoutUser, idleDuration);
+                if (isAuthenticated) {
+                    idleTimer = setTimeout(logoutUser, idleDuration);
+                }
             }
 
             function logoutUser() {
-                // Check if user is authenticated (optional check via template tag if needed, but safe to redirect)
-                {% if user.is_authenticated %}
-                window.location.href = "{% url 'login' %}?next={{ request.path }}";
-                {% endif %}
+                window.location.href = loginUrl;
             }
 
             // Monitor events
