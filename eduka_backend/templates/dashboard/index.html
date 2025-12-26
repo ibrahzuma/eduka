@@ -1,310 +1,353 @@
 {% extends 'base.html' %}
 {% load humanize %}
 
+{% block title %}Dashboard | eDuka SaaS{% endblock %}
+
 {% block content %}
 <style>
-    /* Indeii-Style Quick Actions */
-    .quick-action-card {
-        transition: transform 0.2s, box-shadow 0.2s;
+    /* Modern Dashboard Styling */
+    .hero-card {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
         border: none;
-        border-radius: 12px;
-        background: #fff;
+        box-shadow: 0 4px 20px rgba(78, 115, 223, 0.3);
     }
 
-    .quick-action-card:hover {
+    .hero-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .stat-card-modern {
+        background: white;
+        border-radius: 16px;
+        border: none;
+        padding: 1.5rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .stat-card-modern:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     }
 
-    .icon-box {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
+    .icon-box-modern {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
+        font-size: 1.6rem;
     }
 
-    .icon-box-purple {
-        background: rgba(111, 66, 193, 0.1);
-        color: #6f42c1;
+    .bg-icon-primary {
+        background: rgba(78, 115, 223, 0.1);
+        color: #4e73df;
     }
 
-    .icon-box-blue {
-        background: rgba(13, 110, 253, 0.1);
-        color: #0d6efd;
+    .bg-icon-success {
+        background: rgba(28, 200, 138, 0.1);
+        color: #1cc88a;
     }
 
-    .icon-box-green {
-        background: rgba(25, 135, 84, 0.1);
-        color: #198754;
+    .bg-icon-info {
+        background: rgba(54, 185, 204, 0.1);
+        color: #36b9cc;
     }
 
-    .icon-box-orange {
-        background: rgba(253, 126, 20, 0.1);
-        color: #fd7e14;
+    .bg-icon-warning {
+        background: rgba(246, 194, 62, 0.1);
+        color: #f6c23e;
     }
 
-    /* Stats Cards */
-    .stat-card {
-        border: none;
+    .quick-action-btn {
+        background: white;
+        border: 1px solid #e3e6f0;
         border-radius: 12px;
-        background: #fff;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #5a5c69;
     }
 
-    .stat-label {
-        font-size: 0.85rem;
-        color: #a2a3b7;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .quick-action-btn:hover {
+        border-color: #4e73df;
+        background: #f8f9fc;
+        color: #4e73df;
+        text-decoration: none;
+        transform: translateY(-2px);
     }
 
-    .stat-value {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #1e1e2d;
-    }
-
-    /* Timeframe Filter */
-    .btn-timeframe {
-        border: 1px solid #e4e6ef;
-        color: #5e6278;
-        background: #fff;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-
-    .btn-timeframe:hover,
-    .btn-timeframe.active {
-        background: #f5f8fa;
-        color: #0d6efd;
-        border-color: #f5f8fa;
+    .chart-container-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        height: 100%;
     }
 </style>
 
-<!-- Subscription Banner -->
-<!-- Subscription Banner -->
-{% if show_subscription_banner %} <div class="row mb-4">
-    <div class="col-12">
-        <div class="card bg-danger text-white border-0 shadow-sm"
-            style="background: linear-gradient(45deg, #ff357a, #fff172);">
-            <div class="card-body d-flex justify-content-between align-items-center py-3"
-                style="background: #FFF4DE; border-left: 5px solid #FFA800; color: #000;">
-                <div class="d-flex align-items-center">
-                    {% if subscription_status == 'EXPIRED' or not has_subscription %}
-                    <i class="bi bi-x-circle-fill text-danger me-3 fs-3"></i>
-                    <h6 class="mb-0 fw-bold text-danger">Subscription Ended</h6>
-                    <small class="text-muted">Your features are limited. Please renew now.</small>
-                </div>
-                {% else %}
-                <i class="bi bi-exclamation-triangle-fill text-warning me-3 fs-3"></i>
-                <div>
-                    <h6 class="mb-0 fw-bold">
-                        {% if subscription_status == 'TRIAL' %}
-                        {{ days_left }} Days remaining of Free Trial
-                        {% else %}
-                        {{ days_left }} Days remaining on your {{ subscription.plan.name }} plan
-                        {% endif %}
-                    </h6>
-                    <small class="text-muted">Renew now to avoid service interruption.</small>
-                </div>
-                {% endif %}
-            </div>
-            <a href="{% url 'shop_pricing' %}" class="btn btn-dark fw-bold px-4 rounded-pill">Renew / Upgrade</a>
+<!-- Subscription Banner Alert -->
+{% if show_subscription_banner %}
+<div class="alert alert-warning border-0 shadow-sm rounded-3 d-flex align-items-center justify-content-between mb-4 fade show"
+    role="alert" style="background: #fff3cd; color: #856404;">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+        <div>
+            {% if subscription_status == 'EXPIRED' %}
+            <h6 class="fw-bold mb-0">Subscription Expired</h6>
+            <small>Your features are currently limited. Please renew to regain access.</small>
+            {% else %}
+            <h6 class="fw-bold mb-0">Subscription Expiring Soon</h6>
+            <small>{{ days_left }} days remaining. Renew now to avoid interruption.</small>
+            {% endif %}
         </div>
     </div>
-</div>
+    <a href="{% url 'shop_pricing' %}" class="btn btn-dark rounded-pill fw-bold px-4 btn-sm">Renew Now</a>
 </div>
 {% endif %}
 
-<!-- Header & Filters -->
-<div class="row mb-4 align-items-center">
-    <div class="col-md-6">
-        <h3 class="fw-bold text-dark mb-0">Dashboard</h3>
-        <p class="text-muted mb-0">Welcome, {{ user.username }}</p>
-    </div>
-    <div class="col-md-6 text-md-end mt-3 mt-md-0">
-        <div class="btn-group shadow-sm" role="group">
-            <a href="?date_range=today"
-                class="btn btn-timeframe {% if selected_range == 'today' or not selected_range %}active{% endif %}">Today</a>
-            <a href="?date_range=week"
-                class="btn btn-timeframe {% if selected_range == 'week' %}active{% endif %}">Week</a>
-            <a href="?date_range=month"
-                class="btn btn-timeframe {% if selected_range == 'month' %}active{% endif %}">Month</a>
-            <a href="?date_range=year"
-                class="btn btn-timeframe {% if selected_range == 'year' %}active{% endif %}">Year</a>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Actions Grid -->
+<!-- Hero Header -->
 <div class="row mb-4">
     <div class="col-12">
-        <h6 class="text-muted fw-bold text-uppercase small mb-3">Quick Actions</h6>
-    </div>
-    <div class="col-md-3 mb-3">
-        <a href="{% url 'sale_pos' %}" class="text-decoration-none">
-            <div class="card quick-action-card h-100 shadow-sm p-3">
-                <div class="card-body text-center">
-                    <div class="icon-box icon-box-blue mx-auto">
-                        <i class="bi bi-cart-plus-fill"></i>
+        <div class="hero-card shadow text-white">
+            <div class="row align-items-center position-relative" style="z-index: 1;">
+                <div class="col-md-8">
+                    <!-- Removed '|default' filter to fix TemplateSyntaxError -->
+                    <h2 class="fw-bold mb-1">Good {% now "A"|lower|yesno:"Morning,Afternoon,Evening" %}, {{
+                        user.first_name }}!</h2>
+                    <p class="opacity-75 mb-0">Here's what's happening with your business today.</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="btn-group bg-white bg-opacity-25 rounded-pill p-1">
+                        <a href="?date_range=today"
+                            class="btn btn-sm rounded-pill text-white fw-bold {% if selected_range == 'today' %}bg-white text-primary{% endif %}">Today</a>
+                        <a href="?date_range=week"
+                            class="btn btn-sm rounded-pill text-white fw-bold {% if selected_range == 'week' %}bg-white text-primary{% endif %}">Week</a>
+                        <a href="?date_range=month"
+                            class="btn btn-sm rounded-pill text-white fw-bold {% if selected_range == 'month' %}bg-white text-primary{% endif %}">Month</a>
                     </div>
-                    <h6 class="fw-bold text-dark mb-1">Record Sales</h6>
-                    <small class="text-muted">Sell products/services</small>
                 </div>
             </div>
-        </a>
-    </div>
-    <div class="col-md-3 mb-3">
-        <a href="{% url 'expense_create' %}" class="text-decoration-none">
-            <div class="card quick-action-card h-100 shadow-sm p-3">
-                <div class="card-body text-center">
-                    <div class="icon-box icon-box-orange mx-auto">
-                        <i class="bi bi-wallet2"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-1">Expenses</h6>
-                    <small class="text-muted">Record expenses</small>
-                </div>
-            </div>
-        </a>
-    </div>
-    <div class="col-md-3 mb-3">
-        <a href="{% url 'purchase_create' %}" class="text-decoration-none">
-            <div class="card quick-action-card h-100 shadow-sm p-3">
-                <div class="card-body text-center">
-                    <div class="icon-box icon-box-purple mx-auto">
-                        <i class="bi bi-bag-plus-fill"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-1">Purchases</h6>
-                    <small class="text-muted">Restock inventory</small>
-                </div>
-            </div>
-        </a>
-    </div>
-    <div class="col-md-3 mb-3">
-        <a href="{% url 'product_create' %}" class="text-decoration-none">
-            <div class="card quick-action-card h-100 shadow-sm p-3">
-                <div class="card-body text-center">
-                    <div class="icon-box icon-box-green mx-auto">
-                        <i class="bi bi-box-seam"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-1">New Product</h6>
-                    <small class="text-muted">Register product</small>
-                </div>
-            </div>
-        </a>
+        </div>
     </div>
 </div>
 
-<!-- Stats Cards -->
+<!-- Key Stats Grid -->
+<div class="row g-4 mb-4">
+    <!-- Total Sales -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <div>
+                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Total Revenue</h6>
+                    <h3 class="fw-bold text-dark mb-0">TZS {{ sales_period|intcomma }}</h3>
+                </div>
+                <div class="icon-box-modern bg-icon-primary">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+            </div>
+            <div class="small">
+                <span class="text-success fw-bold"><i class="bi bi-arrow-up"></i> {{ total_sales_volume|intcomma
+                    }}</span>
+                <span class="text-muted ms-1">Lifetime total</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchases/Expenses -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <div>
+                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Expenses/Purchases</h6>
+                    <h3 class="fw-bold text-dark mb-0">TZS {{ purchases_period|intcomma }}</h3>
+                </div>
+                <div class="icon-box-modern bg-icon-warning">
+                    <i class="bi bi-bag"></i>
+                </div>
+            </div>
+            <div class="small">
+                <span class="text-danger fw-bold"><i class="bi bi-arrow-down"></i> Outflow</span>
+                <span class="text-muted ms-1">in selected period</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Users/Branches -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <div>
+                    {% if top_cashier %}
+                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Top Performer</h6>
+                    <h4 class="fw-bold text-dark mb-0 text-truncate" title="{{ top_cashier.name }}">{{ top_cashier.name
+                        }}</h4>
+                    {% else %}
+                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Active Branches</h6>
+                    <!-- Removed default filter -->
+                    <h3 class="fw-bold text-dark mb-0">{{ total_branches }}</h3>
+                    {% endif %}
+                </div>
+                <div class="icon-box-modern bg-icon-info">
+                    {% if top_cashier %}
+                    <i class="bi bi-trophy-fill"></i>
+                    {% else %}
+                    <i class="bi bi-geo-alt-fill"></i>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="small">
+                {% if top_cashier %}
+                <span class="text-success fw-bold">TZS {{ top_cashier.amount|intcomma }}</span> <span
+                    class="text-muted">generated</span>
+                {% else %}
+                <span class="text-info">Operating</span> <span class="text-muted">locations</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <div>
+                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Low Stock Alerts</h6>
+                    <!-- Removed default filter -->
+                    <h3 class="fw-bold text-dark mb-0">{{ low_stock_items }}</h3>
+                </div>
+                <div class="icon-box-modern bg-icon-success">
+                    <!-- Using Green for inventory, maybe Red if critical? keeping consistent -->
+                    <i class="bi bi-box-seam"></i>
+                </div>
+            </div>
+            <div class="small">
+                {% if low_stock_items > 0 %}
+                <span class="text-danger fw-bold">Action Needed</span>
+                {% else %}
+                <span class="text-success fw-bold">Healthy</span>
+                {% endif %}
+                <span class="text-muted ms-1">inventory status</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row mb-4">
-    <!-- Sales Card -->
-    <div class="col-md-4 mb-3">
-        <div class="card stat-card h-100 p-3">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-label mb-1">Sales ({{ period_label|default:"Today" }})</div>
-                    <div class="stat-value text-primary">TZS {{ sales_period|intcomma }}</div>
-                    <div class="small text-muted mt-2">
-                        <i class="bi bi-arrow-up-short text-success"></i> Total: {{ total_sales_volume|intcomma }}
-                    </div>
-                </div>
-                <div class="icon-box icon-box-blue rounded-circle" style="width: 60px; height: 60px;">
-                    <i class="bi bi-graph-up"></i>
-                </div>
+    <!-- Chart Section -->
+    <div class="col-lg-8 mb-4 mb-lg-0">
+        <div class="chart-container-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold text-dark mb-0">Financial Overview</h5>
+                <!-- Actions -->
+                <button class="btn btn-sm btn-light border"><i class="bi bi-download"></i> Export</button>
+            </div>
+            <div style="height: 300px;">
+                <canvas id="financialChart"></canvas>
             </div>
         </div>
     </div>
-    <!-- Purchases Card -->
-    <div class="col-md-4 mb-3">
-        <div class="card stat-card h-100 p-3">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-label mb-1">Purchases ({{ period_label|default:"Today" }})</div>
-                    <div class="stat-value text-danger">TZS {{ purchases_period|intcomma }}</div>
-                    <div class="small text-muted mt-2">
-                        <i class="bi bi-arrow-down-short text-danger"></i> Total: {{ total_purchases_volume|intcomma }}
+
+    <!-- Quick Actions -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="fw-bold mb-0">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a href="{% url 'sale_pos' %}" class="quick-action-btn">
+                            <i class="bi bi-cart-plus fs-2 mb-2 text-primary"></i>
+                            <span class="small fw-bold">New Sale</span>
+                        </a>
                     </div>
-                </div>
-                <div class="icon-box icon-box-orange rounded-circle" style="width: 60px; height: 60px;">
-                    <i class="bi bi-cart-check"></i>
+                    <div class="col-6">
+                        <a href="{% url 'expense_create' %}" class="quick-action-btn">
+                            <i class="bi bi-receipt fs-2 mb-2 text-warning"></i>
+                            <span class="small fw-bold">Add Expense</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'product_create' %}" class="quick-action-btn">
+                            <i class="bi bi-box mb-2 fs-2 text-success"></i>
+                            <span class="small fw-bold">Add Product</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'purchase_create' %}" class="quick-action-btn">
+                            <i class="bi bi-bag-plus mb-2 fs-2 text-info"></i>
+                            <span class="small fw-bold">Restock</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Top Cashier or Branches Card -->
-    <div class="col-md-4 mb-3">
-        {% if top_cashier %}
-        <div class="card stat-card h-100 p-3">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-label mb-1">Top Performer</div>
-                    <div class="stat-value text-success text-truncate" style="font-size: 1.4rem; max-width: 150px;"
-                        title="{{ top_cashier.name }}">{{ top_cashier.name }}</div>
-                    <div class="small text-muted mt-2">
-                        <i class="bi bi-trophy-fill text-warning"></i> Sales: {{ top_cashier.amount|intcomma }}
-                    </div>
-                </div>
-                <div class="icon-box icon-box-green rounded-circle" style="width: 60px; height: 60px;">
-                    <i class="bi bi-award"></i>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <a href="{% url 'branch_list' %}" class="text-decoration-none">
-            <div class="card stat-card h-100 p-3">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-label mb-1">Total Branches</div>
-                        <div class="stat-value text-info">{{ total_branches|default:1 }}</div>
-                        <div class="small text-muted mt-2">
-                            <i class="bi bi-shop text-info"></i> Active Locations
-                        </div>
-                    </div>
-                    <div class="icon-box icon-box-purple rounded-circle" style="width: 60px; height: 60px;">
-                        <i class="bi bi-geo-alt"></i>
-                    </div>
-                </div>
-            </div>
-        </a>
-        {% endif %}
     </div>
 </div>
 
-<!-- Recent Orders Table -->
+<!-- Recent Transactions -->
 <div class="row">
     <div class="col-12">
-        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-            <div class="card-header bg-white border-bottom py-3">
-                <h6 class="mb-0 fw-bold">Recent Transactions</h6>
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Recent Transactions</h5>
+                <a href="{% url 'sale_list' %}" class="btn btn-sm btn-light text-primary fw-bold">View All</a>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
+                    <thead class="bg-light text-secondary">
                         <tr>
-                            <th class="ps-4 text-muted small text-uppercase">ID</th>
-                            <th class="text-muted small text-uppercase">Date</th>
-                            <th class="text-muted small text-uppercase">Amount</th>
-                            <th class="text-muted small text-uppercase">Status</th>
+                            <th class="ps-4 text-uppercase small border-0 py-3">ID</th>
+                            <th class="text-uppercase small border-0 py-3">Date</th>
+                            <th class="text-uppercase small border-0 py-3">Amount</th>
+                            <th class="text-uppercase small border-0 py-3">Status</th>
+                            <th class="text-end pe-4 text-uppercase small border-0 py-3">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for sale in recent_sales %}
                         <tr>
                             <td class="ps-4 fw-bold">#{{ sale.id }}</td>
-                            <td class="text-muted">{{ sale.created_at|date:"d M Y, H:i" }}</td>
-                            <td class="fw-bold text-dark">{{ sale.total_amount|intcomma }}</td>
-                            <td><span
-                                    class="badge bg-light text-success border border-success rounded-pill px-3">Paid</span>
+                            <td class="text-muted">{{ sale.created_at|date:"M d, H:i" }}</td>
+                            <td class="fw-bold text-dark">TZS {{ sale.total_amount|intcomma }}</td>
+                            <td>
+                                <span
+                                    class="badge bg-soft-success text-success border border-success rounded-pill px-3">Completed</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="{% url 'sale_detail' sale.id %}" class="btn btn-sm btn-light rounded-circle"
+                                    title="View Receipt">
+                                    <i class="bi bi-eye"></i>
+                                </a>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-center py-4 text-muted">No recent transactions found.</td>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                                No transactions found for this period.
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -313,4 +356,94 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('financialChart').getContext('2d');
+
+        // Mock Data simulation based on stats
+        // In a real scenario, you'd pass JSON data from the view using {{ chart_data|safe }}
+        const activeLabel = "{{ period_label }}";
+        // Removed default filter
+        const salesData = [12000, 19000, 3000, 5000, 20000, 30000, {{ sales_period }}]; // Mock trend
+    // Removed default filter
+    const expenseData = [5000, 10000, 2000, 1000, 15000, 10000, {{ purchases_period }}];
+
+    // Gradient
+    const salesGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    salesGradient.addColorStop(0, 'rgba(78, 115, 223, 0.4)');
+    salesGradient.addColorStop(1, 'rgba(78, 115, 223, 0.0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], // Mocking week
+            datasets: [
+                {
+                    label: 'Revenue',
+                    data: salesData,
+                    backgroundColor: salesGradient,
+                    borderColor: '#4e73df',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#4e73df',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Expense',
+                    data: expenseData,
+                    backgroundColor: 'rgba(246, 194, 62, 0.0)',
+                    borderColor: '#f6c23e',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    align: 'end',
+                    labels: { boxWidth: 10, usePointStyle: true }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    titleColor: '#2d3748',
+                    bodyColor: '#2d3748',
+                    borderColor: '#e2e8f0',
+                    borderWidth: 1,
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { borderDash: [2, 4], color: '#f3f4f6', drawBorder: false },
+                    ticks: { display: false } // clean look
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#a0aec0' }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        }
+    });
+    });
+</script>
 {% endblock %}

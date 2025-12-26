@@ -18,6 +18,7 @@ User = get_user_model()
 from finance.views_ocr import analyze_receipt
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
+from django.urls import reverse
 
 User = get_user_model()
 client = Client()
@@ -52,10 +53,23 @@ def verify_all():
         else:
             print("FAILURE: Public store accessible but product MISSING.")
     else:
-        print(f"FAILURE: Status Code {resp.status_code}")
+        print(f"FAILURE: Public Store Status Code {resp.status_code}")
 
-    # 2. Verify OCR
-    print("\n--- 2. Expense OCR ---")
+    # 1.5 Verify Dashboard Modernization
+    print("\n--- 1.5 Dashboard UI ---")
+    client.force_login(user)
+    resp_dash = client.get(reverse('dashboard'))
+    if resp_dash.status_code == 200:
+        content = resp_dash.content.decode()
+        if 'financialChart' in content and 'hero-card' in content:
+            print("SUCCESS: Dashboard rendered with Chart.js and Hero section.")
+        else:
+            print("WARNING: Dashboard rendered but missing modern UI elements.")
+    else:
+        print(f"FAILURE: Dashboard load failed ({resp_dash.status_code})")
+
+    # 2. Verify Expense Scanning (Mock OCR)
+    print("\n--- 2. Expense Scanning (Mock OCR) ---")
     # We use a mock file
     with open('test_receipt.jpg', 'wb') as f:
         f.write(b'fake image content')
