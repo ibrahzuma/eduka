@@ -32,7 +32,10 @@ def subscription_status(request):
             if days_since_reg < 7:
                 return {'subscription_is_valid': True}
                 
-    except Exception:
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in subscription context processor: {e}")
         pass
 
     return {'subscription_is_valid': False}

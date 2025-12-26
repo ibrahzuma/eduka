@@ -7,7 +7,6 @@ from datetime import date
 
 from django.contrib.auth.decorators import login_required
 
-@csrf_exempt
 @require_POST
 @login_required
 def analyze_receipt(request):

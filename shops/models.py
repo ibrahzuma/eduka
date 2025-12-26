@@ -15,6 +15,16 @@ class Shop(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        reserved_slugs = ['admin', 'dashboard', 'login', 'logout', 'register', 'api', 'static', 'media', 'public', 'store']
+        if self.slug and self.slug.lower() in reserved_slugs:
+            raise ValidationError({'slug': "This shop URL is reserved and cannot be used."})
+
+    def save(self, *args, **kwargs):
+        self.full_clean() # Enforce validation
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
