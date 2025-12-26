@@ -6,7 +6,8 @@ if [ -d "/var/www/eduka_backend" ]; then
 fi
 
 echo "[1] Pulling latest code..."
-git pull origin main
+git fetch origin
+git reset --hard origin/main
 
 echo "[2] Installing Dependencies..."
 if [ -d "venv" ]; then

@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = True # TEMPORARY DEBUGGING ENABLED
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -33,9 +33,9 @@ DEBUG = os.getenv('DEBUG') == 'True'
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # HTTPS Security Settings
-SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False') == 'True'
-CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False') == 'True'
-SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
+SESSION_COOKIE_SECURE = False # TEMPORARY
+CSRF_COOKIE_SECURE = False # TEMPORARY
+SECURE_SSL_REDIRECT = False # TEMPORARY
 
 # Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -54,7 +54,7 @@ X_FRAME_OPTIONS = 'DENY'
 
 
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',') + ['eduka.ehub.co.tz', 'ehub.co.tz']
+ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = ['https://eduka.ehub.co.tz', 'https://ehub.co.tz']
 
