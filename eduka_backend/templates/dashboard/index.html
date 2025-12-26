@@ -5,439 +5,237 @@
 
 {% block content %}
 <style>
-    /* Modern Dashboard Styling */
-    .hero-card {
-        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-        color: white;
-        border-radius: 16px;
-        padding: 2rem;
-        position: relative;
-        overflow: hidden;
+    /* Classic Dashboard Styling */
+    .stat-card {
+        transition: transform 0.2s;
         border: none;
-        box-shadow: 0 4px 20px rgba(78, 115, 223, 0.3);
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
 
-    .hero-card::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 300px;
-        height: 300px;
-        background: rgba(255, 255, 255, 0.1);
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .icon-circle {
+        height: 50px;
+        width: 50px;
         border-radius: 50%;
-    }
-
-    .stat-card-modern {
-        background: white;
-        border-radius: 16px;
-        border: none;
-        padding: 1.5rem;
-        transition: transform 0.2s, box-shadow 0.2s;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-    }
-
-    .stat-card-modern:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    }
-
-    .icon-box-modern {
-        width: 56px;
-        height: 56px;
-        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.6rem;
-    }
-
-    .bg-icon-primary {
-        background: rgba(78, 115, 223, 0.1);
-        color: #4e73df;
-    }
-
-    .bg-icon-success {
-        background: rgba(28, 200, 138, 0.1);
-        color: #1cc88a;
-    }
-
-    .bg-icon-info {
-        background: rgba(54, 185, 204, 0.1);
-        color: #36b9cc;
-    }
-
-    .bg-icon-warning {
-        background: rgba(246, 194, 62, 0.1);
-        color: #f6c23e;
+        font-size: 1.5rem;
     }
 
     .quick-action-btn {
+        display: block;
+        text-align: center;
+        padding: 1.5rem;
         background: white;
         border: 1px solid #e3e6f0;
-        border-radius: 12px;
-        padding: 1rem;
-        text-align: center;
+        border-radius: 10px;
+        color: #4e73df;
         transition: all 0.2s;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
         text-decoration: none;
-        color: #5a5c69;
     }
 
     .quick-action-btn:hover {
-        border-color: #4e73df;
         background: #f8f9fc;
-        color: #4e73df;
+        border-color: #4e73df;
         text-decoration: none;
-        transform: translateY(-2px);
-    }
-
-    .chart-container-card {
-        background: white;
-        border-radius: 16px;
-        padding: 1.5rem;
-        border: none;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-        height: 100%;
+        color: #2e59d9;
     }
 </style>
 
-<!-- Subscription Banner Alert -->
+<!-- Subscription Banner -->
 {% if show_subscription_banner %}
-<div class="alert alert-warning border-0 shadow-sm rounded-3 d-flex align-items-center justify-content-between mb-4 fade show"
-    role="alert" style="background: #fff3cd; color: #856404;">
-    <div class="d-flex align-items-center">
-        <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
-        <div>
-            {% if subscription_status == 'EXPIRED' %}
-            <h6 class="fw-bold mb-0">Subscription Expired</h6>
-            <small>Your features are currently limited. Please renew to regain access.</small>
-            {% else %}
-            <h6 class="fw-bold mb-0">Subscription Expiring Soon</h6>
-            <small>{{ days_left }} days remaining. Renew now to avoid interruption.</small>
-            {% endif %}
-        </div>
+<div class="alert alert-warning shadow-sm border-0 d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <i class="bi bi-exclamation-circle-fill me-2"></i>
+        <strong>Status: {{ subscription_status }}</strong>
+        {% if days_left > 0 %}
+        <span class="ms-2">({{ days_left }} days remaining)</span>
+        {% else %}
+        <span class="ms-2 text-danger">(Expired)</span>
+        {% endif %}
     </div>
-    <a href="{% url 'shop_pricing' %}" class="btn btn-dark rounded-pill fw-bold px-4 btn-sm">Renew Now</a>
+    <a href="{% url 'shop_pricing' %}" class="btn btn-sm btn-dark">Manage Subscription</a>
 </div>
 {% endif %}
 
-<!-- Hero Header -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="hero-card shadow text-white">
-            <div class="row align-items-center position-relative" style="z-index: 1;">
-                <div class="col-md-8">
-                    <h2 class="fw-bold mb-1">Hello, {{ user.first_name|default:user.username|title }}!</h2>
-                    <p class="opacity-75 mb-0">Here's what's happening with your business today.</p>
-                </div>
-                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                    <div class="btn-group bg-white bg-opacity-25 rounded-pill p-1">
-                        <a href="?date_range=today"
-                            class="btn btn-sm rounded-pill text-white fw-bold {% if selected_range == 'today' %}bg-white text-primary{% endif %}">Today</a>
-                        <a href="?date_range=week"
-                            class="btn btn-sm rounded-pill text-white fw-bold {% if selected_range == 'week' %}bg-white text-primary{% endif %}">Week</a>
-                        <a href="?date_range=month"
-                            class="btn btn-sm rounded-pill text-white fw-bold {% if selected_range == 'month' %}bg-white text-primary{% endif %}">Month</a>
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+    <div class="btn-group">
+        <a href="?date_range=today"
+            class="btn btn-sm btn-outline-primary {% if selected_range == 'today' %}active{% endif %}">Today</a>
+        <a href="?date_range=week"
+            class="btn btn-sm btn-outline-primary {% if selected_range == 'week' %}active{% endif %}">This Week</a>
+        <a href="?date_range=month"
+            class="btn btn-sm btn-outline-primary {% if selected_range == 'month' %}active{% endif %}">This Month</a>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row">
+    <!-- Total Sales -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100 py-2 border-left-primary">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Sales</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">TZS {{ sales_period|intcomma }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-circle bg-primary text-white">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Key Stats Grid -->
-<div class="row g-4 mb-4">
-    <!-- Total Sales -->
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
-            <div class="d-flex align-items-start justify-content-between mb-3">
-                <div>
-                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Total Revenue</h6>
-                    <h3 class="fw-bold text-dark mb-0">TZS {{ sales_period|intcomma }}</h3>
+    <!-- Purchases -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100 py-2 border-left-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Expenses/Purchases</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">TZS {{ purchases_period|intcomma }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-circle bg-warning text-white">
+                            <i class="bi bi-bag"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="icon-box-modern bg-icon-primary">
-                    <i class="bi bi-wallet2"></i>
-                </div>
-            </div>
-            <div class="small">
-                <span class="text-success fw-bold"><i class="bi bi-arrow-up"></i> {{ total_sales_volume|intcomma
-                    }}</span>
-                <span class="text-muted ms-1">Lifetime total</span>
             </div>
         </div>
     </div>
 
-    <!-- Purchases/Expenses -->
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
-            <div class="d-flex align-items-start justify-content-between mb-3">
-                <div>
-                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Expenses/Purchases</h6>
-                    <h3 class="fw-bold text-dark mb-0">TZS {{ purchases_period|intcomma }}</h3>
+    <!-- Active Branches/Cashier -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100 py-2 border-left-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        {% if top_cashier %}
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Top Cashier</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ top_cashier.name }}</div>
+                        <small class="text-success">TZS {{ top_cashier.amount|intcomma }}</small>
+                        {% else %}
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Active Branches</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_branches }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-circle bg-info text-white">
+                            {% if top_cashier %}
+                            <i class="bi bi-person-badge"></i>
+                            {% else %}
+                            <i class="bi bi-shop"></i>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-                <div class="icon-box-modern bg-icon-warning">
-                    <i class="bi bi-bag"></i>
-                </div>
-            </div>
-            <div class="small">
-                <span class="text-danger fw-bold"><i class="bi bi-arrow-down"></i> Outflow</span>
-                <span class="text-muted ms-1">in selected period</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Active Users/Branches -->
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
-            <div class="d-flex align-items-start justify-content-between mb-3">
-                <div>
-                    {% if top_cashier %}
-                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Top Performer</h6>
-                    <h4 class="fw-bold text-dark mb-0 text-truncate" title="{{ top_cashier.name }}">{{ top_cashier.name
-                        }}</h4>
-                    {% else %}
-                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Active Branches</h6>
-                    <h3 class="fw-bold text-dark mb-0">{{ total_branches }}</h3>
-                    {% endif %}
-                </div>
-                <div class="icon-box-modern bg-icon-info">
-                    {% if top_cashier %}
-                    <i class="bi bi-trophy-fill"></i>
-                    {% else %}
-                    <i class="bi bi-geo-alt-fill"></i>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="small">
-                {% if top_cashier %}
-                <span class="text-success fw-bold">TZS {{ top_cashier.amount|intcomma }}</span> <span
-                    class="text-muted">generated</span>
-                {% else %}
-                <span class="text-info">Operating</span> <span class="text-muted">locations</span>
-                {% endif %}
             </div>
         </div>
     </div>
 
     <!-- Low Stock -->
-    <div class="col-md-6 col-lg-3">
-        <div class="stat-card-modern h-100 d-flex flex-column justify-content-between">
-            <div class="d-flex align-items-start justify-content-between mb-3">
-                <div>
-                    <h6 class="text-secondary text-uppercase small fw-bold mb-1">Low Stock Alerts</h6>
-                    <h3 class="fw-bold text-dark mb-0">{{ low_stock_items }}</h3>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100 py-2 border-left-danger">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Low Stock Items</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ low_stock_items }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon-circle bg-danger text-white">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="icon-box-modern bg-icon-success">
-                    <!-- Using Green for inventory, maybe Red if critical? keeping consistent -->
-                    <i class="bi bi-box-seam"></i>
-                </div>
-            </div>
-            <div class="small">
-                {% if low_stock_items > 0 %}
-                <span class="text-danger fw-bold">Action Needed</span>
-                {% else %}
-                <span class="text-success fw-bold">Healthy</span>
-                {% endif %}
-                <span class="text-muted ms-1">inventory status</span>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Quick Actions -->
 <div class="row mb-4">
-    <!-- Chart Section -->
-    <div class="col-lg-8 mb-4 mb-lg-0">
-        <div class="chart-container-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold text-dark mb-0">Financial Overview</h5>
-                <!-- Actions -->
-                <button class="btn btn-sm btn-light border"><i class="bi bi-download"></i> Export</button>
-            </div>
-            <div style="height: 300px;">
-                <canvas id="financialChart"></canvas>
-            </div>
-        </div>
+    <div class="col-12">
+        <h6 class="text-gray-800 font-weight-bold mb-3">Quick Actions</h6>
     </div>
-
-    <!-- Quick Actions -->
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-header bg-white border-0 py-3">
-                <h6 class="fw-bold mb-0">Quick Actions</h6>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-6">
-                        <a href="{% url 'sale_pos' %}" class="quick-action-btn">
-                            <i class="bi bi-cart-plus fs-2 mb-2 text-primary"></i>
-                            <span class="small fw-bold">New Sale</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{% url 'expense_create' %}" class="quick-action-btn">
-                            <i class="bi bi-receipt fs-2 mb-2 text-warning"></i>
-                            <span class="small fw-bold">Add Expense</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{% url 'product_create' %}" class="quick-action-btn">
-                            <i class="bi bi-box mb-2 fs-2 text-success"></i>
-                            <span class="small fw-bold">Add Product</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{% url 'purchase_create' %}" class="quick-action-btn">
-                            <i class="bi bi-bag-plus mb-2 fs-2 text-info"></i>
-                            <span class="small fw-bold">Restock</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="col-md-3 mb-3">
+        <a href="{% url 'sale_pos' %}" class="quick-action-btn">
+            <i class="bi bi-cart-plus fs-2 mb-2"></i>
+            <div class="font-weight-bold">New Sale</div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="{% url 'expense_create' %}" class="quick-action-btn">
+            <i class="bi bi-receipt fs-2 mb-2"></i>
+            <div class="font-weight-bold">Add Expense</div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="{% url 'product_create' %}" class="quick-action-btn">
+            <i class="bi bi-box fs-2 mb-2"></i>
+            <div class="font-weight-bold">Add Product</div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="{% url 'purchase_create' %}" class="quick-action-btn">
+            <i class="bi bi-truck fs-2 mb-2"></i>
+            <div class="font-weight-bold">Restock</div>
+        </a>
     </div>
 </div>
 
 <!-- Recent Transactions -->
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0">Recent Transactions</h5>
-                <a href="{% url 'sale_list' %}" class="btn btn-sm btn-light text-primary fw-bold">View All</a>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-secondary">
-                        <tr>
-                            <th class="ps-4 text-uppercase small border-0 py-3">ID</th>
-                            <th class="text-uppercase small border-0 py-3">Date</th>
-                            <th class="text-uppercase small border-0 py-3">Amount</th>
-                            <th class="text-uppercase small border-0 py-3">Status</th>
-                            <th class="text-end pe-4 text-uppercase small border-0 py-3">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for sale in recent_sales %}
-                        <tr>
-                            <td class="ps-4 fw-bold">#{{ sale.id }}</td>
-                            <td class="text-muted">{{ sale.created_at|date:"M d, H:i" }}</td>
-                            <td class="fw-bold text-dark">TZS {{ sale.total_amount|intcomma }}</td>
-                            <td>
-                                <span
-                                    class="badge bg-soft-success text-success border border-success rounded-pill px-3">Completed</span>
-                            </td>
-                            <td class="text-end pe-4">
-                                <a href="{% url 'sale_detail' sale.id %}" class="btn btn-sm btn-light rounded-circle"
-                                    title="View Receipt">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">
-                                <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
-                                No transactions found for this period.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
+        <a href="{% url 'sale_list' %}" class="btn btn-sm btn-primary">View All</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in recent_sales %}
+                    <tr>
+                        <td>#{{ sale.id }}</td>
+                        <td>{{ sale.created_at|date:"M d, Y H:i" }}</td>
+                        <td class="font-weight-bold">TZS {{ sale.total_amount|intcomma }}</td>
+                        <td><span class="badge bg-success">Completed</span></td>
+                        <td>
+                            <a href="{% url 'sale_detail' sale.id %}" class="btn btn-sm btn-info">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No recent transactions.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const ctx = document.getElementById('financialChart').getContext('2d');
-
-        // Mock Data simulation based on stats
-        // In a real scenario, you'd pass JSON data from the view using {{ chart_data|safe }}
-        const activeLabel = "{{ period_label }}";
-        const salesData = [12000, 19000, 3000, 5000, 20000, 30000, {{ sales_period }}]; // Mock trend
-    const expenseData = [5000, 10000, 2000, 1000, 15000, 10000, {{ purchases_period }}];
-
-    // Gradient
-    const salesGradient = ctx.createLinearGradient(0, 0, 0, 400);
-    salesGradient.addColorStop(0, 'rgba(78, 115, 223, 0.4)');
-    salesGradient.addColorStop(1, 'rgba(78, 115, 223, 0.0)');
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], // Mocking week
-            datasets: [
-                {
-                    label: 'Revenue',
-                    data: salesData,
-                    backgroundColor: salesGradient,
-                    borderColor: '#4e73df',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#4e73df',
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Expense',
-                    data: expenseData,
-                    backgroundColor: 'rgba(246, 194, 62, 0.0)',
-                    borderColor: '#f6c23e',
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    pointRadius: 0,
-                    tension: 0.4
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    align: 'end',
-                    labels: { boxWidth: 10, usePointStyle: true }
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    titleColor: '#2d3748',
-                    bodyColor: '#2d3748',
-                    borderColor: '#e2e8f0',
-                    borderWidth: 1,
-                    padding: 12,
-                    cornerRadius: 8,
-                    displayColors: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { borderDash: [2, 4], color: '#f3f4f6', drawBorder: false },
-                    ticks: { display: false } // clean look
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#a0aec0' }
-                }
-            },
-            interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
-            }
-        }
-    });
-    });
-</script>
 {% endblock %}

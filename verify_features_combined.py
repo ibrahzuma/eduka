@@ -61,10 +61,10 @@ def verify_all():
     resp_dash = client.get(reverse('dashboard'))
     if resp_dash.status_code == 200:
         content = resp_dash.content.decode()
-        if 'financialChart' in content and 'hero-card' in content:
-            print("SUCCESS: Dashboard rendered with Chart.js and Hero section.")
+        if 'Total Sales' in content:
+            print("SUCCESS: Dashboard loaded (Classic Mode).")
         else:
-            print("WARNING: Dashboard rendered but missing modern UI elements.")
+            print("WARNING: Dashboard loaded but content suspect.")
     else:
         print(f"FAILURE: Dashboard load failed ({resp_dash.status_code})")
 
